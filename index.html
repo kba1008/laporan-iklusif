@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Inklusif Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="p-4 min-h-screen flex justify-center items-start">
+
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <!-- HEADER -->
+        <div class="bg-indigo-700 p-6 text-white">
+            <h1 class="text-2xl font-bold">Laporan Inklusif Pro</h1>
+            <p class="text-indigo-200 text-sm">Jana laporan pendidikan khas format rasmi & bergambar</p>
+        </div>
+
+        <!-- INPUT FORM -->
+        <div class="p-6 space-y-5">
+            
+            <!-- SECTION 1: CONFIG ASAS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mata Pelajaran</label>
+                    <input type="text" id="subject" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Pendidikan 
+
+Jasmani">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Guru</label>
+                    <input type="text" id="teacher" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Cikgu Zamberi">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Bilangan Murid Inklusif</label>
+                    <input type="text" id="studentCount" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: 6 Orang">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tarikh Laporan</label>
+                    <input type="date" id="reportDate" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <!-- SECTION 2: GAMBAR (MULTIPLE) -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Bukti Gambar (Upload / Kamera - Max 4)</label>
+                <input type="file" id="imageInput" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full 
+
+file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onchange="handleImageUpload(this)">
+                <div id="imagePreviewContainer" onclick="resetImages()" class="cursor-pointer flex gap-2 mt-2 overflow-x-auto h-24 p-2 border border-dashed border-gray-300 
+
+rounded-lg" title="Klik kotak ini untuk padam semua gambar">
+                    <span class="text-xs text-gray-400 m-auto">Tiada gambar dipilih (Klik sini untuk Reset)</span>
+                </div>
+            </div>
+
+            <!-- SECTION 3: NOTA AKTIVITI -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nota Ringkas Aktiviti</label>
+                <textarea id="activityNotes" rows="4" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Aktiviti 
+
+regangan, lompat tinggi, murid seronok, berinteraksi baik dengan arus perdana..."></textarea>
+                <p class="text-xs text-gray-500 mt-1">AI akan kembangkan nota ini menjadi 200-250 patah perkataan.</p>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <button onclick="generateAIReport()" id="btnGenerate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition flex 
+
+justify-center items-center gap-2">
+                <span>? Jana & Terus Download PDF</span>
+            </button>
+
+            <div id="loadingState" class="hidden flex justify-center items-center gap-2 py-2">
+                <div class="loader"></div>
+                <span class="text-indigo-600 font-semibold text-sm">AI sedang menulis...</span>
+            </div>
+        </div>
+
+        <!-- OUTPUT SECTION -->
+        <div id="resultSection" class="hidden border-t border-gray-200 bg-gray-50 p-6">
+            <h3 class="font-bold text-gray-800 mb-2">Hasil Laporan:</h3>
+            <textarea id="finalOutput" rows="12" class="w-full p-4 border border-gray-300 rounded-lg text-sm text-gray-800 shadow-inner font-sans leading-relaxed"></textarea>
+            
+            <div class="mt-4 flex flex-col md:flex-row gap-3">
+                <button onclick="saveAsPDF()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow flex justify-center items-center gap-2">
+                    Simpan PDF ??
+                </button>
+                <button onclick="saveToCloud()" id="btnCloud" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow flex justify-center 
+
+items-center gap-2">
+                    Simpan ke Cloud ??
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ===========================================
+        // ?? RUANG EDIT CONFIGURATION (Cikgu Edit Sini)
+        // ===========================================
+        const CONFIG = {
+            API_KEY: "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", // Masukkan API Key Groq anda
+            GAS_URL: "https://script.google.com/macros/s/AKfycbwbssHJo0967yEJ1TqwUXqxNo2af4y77QjVJ4ZjzdifgkFdkcyeGfjZfHoAZsxxz5OK/exec", // ?? Masukkan URL Google Apps Script Web App di sini!
+            MODEL_ID: "llama-3.1-70b-versatile", // Model AI yang digunakan
+            MIN_WORDS: 200, // Had minimum perkataan
+            MAX_WORDS: 250, // Had maksimum perkataan
+            DEFAULT_SUBJEK: "Pendidikan Jasmani",
+            DEFAULT_GURU: "Cikgu Zamberi",
+            DEFAULT_BIL_MURID: "6 orang murid PPKI"
+        };
+
+        // Set default values bila page load
+        window.onload = () => {
+            document.getElementById('subject').value = CONFIG.DEFAULT_SUBJEK;
+            document.getElementById('teacher').value = CONFIG.DEFAULT_GURU;
+            document.getElementById('studentCount').value = CONFIG.DEFAULT_BIL_MURID;
+            document.getElementById('reportDate').valueAsDate = new Date();
+        };
+
+        // Variables Global
+        let uploadedImages = []; // Simpan data gambar (Base64)
+
+        // 1. FUNGSI HANDLE GAMBAR (DIKEMASKINI: CUMULATIVE & RESET)
+        function handleImageUpload(input) {
+            const files = input.files;
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            
+            // Jika ini upload pertama, bersihkan teks placeholder
+            if (uploadedImages.length === 0) {
+                previewContainer.innerHTML = '';
+            }
+
+            // VALIDASI: Minima 1 dikawal di butang Jana, Maksima 4 di sini (Cumulative)
+            if (uploadedImages.length + files.length > 4) {
+                alert("Maksimum 4 gambar sahaja. Sila reset jika ingin menukar gambar.");
+                input.value = "";
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Simpan ke array
+                    uploadedImages.push(e.target.result);
+                    // Buat preview kecil
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = "h-full w-auto object-cover rounded-md border border-gray-200";
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Kosongkan input supaya boleh pilih gambar lain (untuk fungsi kamera berulang)
+            input.value = "";
+        }
+
+        // FUNGSI RESET GAMBAR
+        function resetImages() {
+            if (uploadedImages.length > 0) {
+                if(confirm("Adakah anda pasti mahu memadam semua gambar?")) {
+                    uploadedImages = [];
+                    document.getElementById('imagePreviewContainer').innerHTML = '<span class="text-xs text-gray-400 m-auto">Tiada gambar dipilih (Klik sini untuk Reset)
+
+</span>';
+                    document.getElementById('imageInput').value = "";
+                }
+            }
+        }
+
+        // 2. FUNGSI JANA LAPORAN AI
+        async function generateAIReport() {
+            const subject = document.getElementById('subject').value;
+            const teacher = document.getElementById('teacher').value;
+            const count = document.getElementById('studentCount').value;
+            const date = document.getElementById('reportDate').value;
+            const notes = document.getElementById('activityNotes').value;
+
+            if (!notes) {
+                alert("Sila masukkan nota aktiviti.");
+                return;
+            }
+
+            // VALIDASI: Pastikan minima 1 gambar diupload
+            if (uploadedImages.length < 1) {
+                alert("Sila muat naik sekurang-kurangnya 1 gambar bukti sebelum menjana laporan.");
+                return;
+            }
+
+            // UI Loading
+            document.getElementById('btnGenerate').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            // Format Prompt Khas
+            const systemPrompt = `Anda adalah penolong kanan pendidikan khas. Tugas anda menjana laporan rasmi. 
+            Syarat: Panjang laporan MESTI antara ${CONFIG.MIN_WORDS} hingga ${CONFIG.MAX_WORDS} patah perkataan.`;
+
+            const userPrompt = `
+            Sila bina laporan lengkap berdasarkan butiran ini:
+            - Mata Pelajaran: ${subject}
+            - Guru: ${teacher}
+            - Bil Murid: ${count}
+            - Tarikh: ${date}
+            - Nota Aktiviti: ${notes}
+
+            FORMAT OUTPUT WAJIB (Jangan ubah tajuk seksyen):
+            Laporan Program Inklusif ${subject}
+            Tarikh: ${date}
+            
+            [Ringkasan Aktiviti]
+            (Huraikan aktiviti di sini dalam perenggan)
+
+            [Pemerhatian]
+            - Penglibatan: (Huraian)
+            - Integrasi: (Huraian)
+            - Pencapaian: (Huraian)
+
+            [Kesimpulan]
+            (Rumusan keseluruhan)
+            `;
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${CONFIG.API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: CONFIG.MODEL_ID,
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: userPrompt }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 1024
+                    })
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+
+                document.getElementById('finalOutput').value = data.choices[0].message.content;
+                document.getElementById('resultSection').classList.remove('hidden');
+
+                // ? MODIFIKASI: Terus simpan PDF secara automatik seperti diminta
+                await saveAsPDF();
+
+            } catch (error) {
+                console.error(error);
+                alert("Ralat AI: " + error.message);
+            } finally {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('btnGenerate').classList.remove('hidden');
+            }
+        }
+
+        // 3. FUNGSI SIMPAN PDF
+        async function saveAsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const reportText = document.getElementById('finalOutput').value;
+            const teacherName = document.getElementById('teacher').value;
+            const dateStr = document.getElementById('reportDate').value;
+
+            // --- HEADER PDF ---
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("LAPORAN PENDIDIKAN KHAS (INKLUSIF)", 105, 20, null, null, "center");
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`DIJANA OLEH: ${teacherName.toUpperCase()}`, 105, 27, null, null, "center");
+            doc.line(20, 32, 190, 32); // Garis pemisah
+
+            // --- TEXT CONTENT ---
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            // Split text supaya tak terkeluar margin
+            const splitText = doc.splitTextToSize(reportText, 170);
+            let yPos = 45;
+
+            // Loop text lines untuk check page break
+            for (let i = 0; i < splitText.length; i++) {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                doc.text(splitText[i], 20, yPos);
+                yPos += 7; // Jarak antara baris
+            }
+
+            // --- IMAGE SECTION (APPENDIX) ---
+            if (uploadedImages.length > 0) {
+                // Jika ruang tak cukup, masuk page baru
+                if (yPos > 200) {
+                    doc.addPage();
+                    yPos = 20;
+                } else {
+                    yPos += 10;
+                }
+
+                doc.setFont("helvetica", "bold");
+                doc.text("LAMPIRAN BERGAMBAR:", 20, yPos);
+                yPos += 10;
+
+                // Masukkan gambar (max 4, susun menegak atau grid)
+                for (let imgData of uploadedImages) {
+                    if (yPos > 200) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    // Add Image (x, y, w, h)
+                    // Ratio standard 16:9 approx -> 160mm width, 90mm height
+                    doc.addImage(imgData, 'JPEG', 25, yPos, 160, 90);
+                    yPos += 100;
+                }
+            }
+
+            // Footer Page Number
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Muka Surat ${i} dari ${pageCount}`, 190, 287, null, null, "right");
+            }
+
+            doc.save(`Laporan_Inklusif_${dateStr}.pdf`);
+        }
+
+        // 4. FUNGSI SIMPAN KE CLOUD (GOOGLE SHEET)
+        function saveToCloud() {
+            const btn = document.getElementById('btnCloud');
+            const originalText = btn.innerText;
+            
+            if (!CONFIG.GAS_URL) {
+                alert("Sila masukkan URL Google Apps Script dalam CONFIG terlebih dahulu!");
+                return;
+            }
+
+            // UI Loading
+            btn.innerText = "Sedang Menyimpan... ?";
+            btn.disabled = true;
+
+            const payload = {
+                subject: document.getElementById('subject').value,
+                teacher: document.getElementById('teacher').value,
+                studentCount: document.getElementById('studentCount').value,
+                reportDate: document.getElementById('reportDate').value,
+                notes: document.getElementById('activityNotes').value,
+                fullReport: document.getElementById('finalOutput').value,
+                images: uploadedImages // Hantar array base64
+            };
+
+            fetch(CONFIG.GAS_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    alert("? Berjaya disimpan ke Google Sheet & Drive!");
+                } else {
+                    alert("? Gagal simpan: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("?? Ralat sambungan. Pastikan URL Script betul.");
+            })
+            .finally(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
