@@ -3,133 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Inklusif Pro - Multi-Model AI</title>
+    <title>Laporan Inklusif Pro - Auto Switch AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f46e5">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .image-preview { position: relative; display: inline-block; }
-        .remove-img { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; text-align: center; cursor: pointer; }
+        .remove-img { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; }
     </style>
 </head>
-<body class="p-4 min-h-screen flex justify-center items-start">
+<body class="p-4 md:p-8">
 
-    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
-        
-        <div class="bg-indigo-700 p-6 text-white text-center">
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-indigo-700 p-6 text-white">
             <h1 class="text-2xl font-bold">Laporan Inklusif Pro 🤖</h1>
-            <p class="text-indigo-200 text-sm">Automasi Laporan Pendidikan Khas (PWA)</p>
+            <p class="text-indigo-100 text-xs mt-1">Sistem Penjanaan Laporan Automatik (Versi Multi-Model)</p>
         </div>
 
-        <div class="p-6 space-y-5">
-            
+        <div class="p-6 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mata Pelajaran</label>
-                    <input type="text" id="subject" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Pendidikan Jasmani">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Guru</label>
-                    <input type="text" id="teacher" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Nama Anda">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Bilangan Murid Inklusif</label>
-                    <input type="text" id="studentCount" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: 6 Orang">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tarikh Laporan</label>
-                    <input type="date" id="reportDate" class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500">
-                </div>
+                <input type="text" id="subject" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Mata Pelajaran">
+                <input type="text" id="teacher" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Nama Guru">
+                <input type="text" id="studentCount" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Bil. Murid Inklusif">
+                <input type="date" id="reportDate" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Bukti Gambar (Max 4)</label>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Gambar Aktiviti (Max 4)</label>
                 <input type="file" id="imageInput" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onchange="handleImageUpload(this)">
-                <div id="imagePreviewContainer" class="flex gap-2 mt-2 overflow-x-auto min-h-[100px] p-2 border border-dashed border-gray-300 rounded-lg">
-                    <span id="placeholderText" class="text-xs text-gray-400 m-auto">Tiada gambar dipilih</span>
+                <div id="imagePreviewContainer" class="flex gap-2 mt-3 overflow-x-auto p-2 border border-dashed rounded-xl min-h-[80px]">
+                    <span id="placeholderText" class="text-gray-400 m-auto text-xs italic">Sila pilih gambar...</span>
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Nota Aktiviti (Input untuk AI)</label>
-                <textarea id="activityNotes" rows="4" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" placeholder="Ceritakan apa yang berlaku dalam kelas..."></textarea>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Nota Ringkas Aktiviti</label>
+                <textarea id="activityNotes" rows="4" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Contoh: Murid belajar teknik baling bola, suasana ceria, semua murid terlibat aktif."></textarea>
             </div>
 
-            <button onclick="generateAIReport()" id="btnGenerate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition flex justify-center items-center gap-2">
-                <span>✨ Jana & Download PDF</span>
+            <button onclick="generateAIReport()" id="btnGenerate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2">
+                <span>✨ Jana Laporan & PDF</span>
             </button>
 
-            <div id="loadingState" class="hidden flex flex-col items-center gap-2 py-2">
-                <div class="flex items-center gap-2">
+            <div id="loadingState" class="hidden text-center py-2">
+                <div class="flex items-center justify-center gap-3 mb-1">
                     <div class="loader"></div>
-                    <span id="loaderMsg" class="text-indigo-600 font-semibold">AI sedang menulis laporan...</span>
+                    <span class="text-indigo-600 font-bold text-sm">Sedang Menulis Laporan...</span>
                 </div>
-                <span id="modelStatus" class="text-[10px] text-gray-400"></span>
+                <div id="switchStatus" class="text-[10px] text-orange-500 font-mono italic animate-pulse"></div>
             </div>
         </div>
 
-        <div id="resultSection" class="hidden border-t border-gray-200 bg-gray-50 p-6">
-            <h3 class="font-bold text-gray-800 mb-2">Hasil Laporan AI:</h3>
-            <textarea id="finalOutput" rows="10" class="w-full p-4 border border-gray-300 rounded-lg text-sm shadow-inner leading-relaxed"></textarea>
-            
-            <div class="mt-4 flex flex-col md:flex-row gap-3">
-                <button onclick="saveAsPDF()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2">
-                    📄 Download PDF
-                </button>
-                <button onclick="saveToCloud()" id="btnCloud" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2">
-                    ☁️ Simpan ke Cloud
-                </button>
+        <div id="resultSection" class="hidden border-t bg-gray-50 p-6">
+            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Pratinjau Laporan AI:</label>
+            <textarea id="finalOutput" rows="8" class="w-full p-4 border rounded-xl text-sm leading-relaxed shadow-inner mb-4"></textarea>
+            <div class="flex gap-3">
+                <button onclick="saveAsPDF()" class="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700">📄 Download PDF</button>
+                <button onclick="saveToCloud()" id="btnCloud" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700">☁️ Simpan Cloud</button>
             </div>
         </div>
-
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const CONFIG = {
-            API_KEY_groq: "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", 
-            // Senarai Model untuk Auto-Switch (Utama -> Simpanan)
+            API_KEY: "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",
+            // Senarai model: Jika satu gagal, dia akan cuba yang bawah secara automatik
             MODELS: [
-                "llama-3.3-70b-versatile", // Paling mantap & terkini
-                "llama-3.1-70b-specdec",   // Sangat laju
-                "mixtral-8x7b-32768"       // Konteks luas & stabil
+                "llama-3.3-70b-versatile", 
+                "mixtral-8x7b-32768",
+                "llama-3.1-8b-instant"
             ],
             GAS_URL: "https://script.google.com/macros/s/AKfycbz3qlb57bEdTU-WONmJc8qIkdxdYLcueS3kWj0WQHTFEKNgFhVC7K6ki9akhy2O8cUZ/exec"
         };
 
         let uploadedImages = [];
 
-        window.onload = () => {
-            document.getElementById('reportDate').valueAsDate = new Date();
-        };
+        window.onload = () => { document.getElementById('reportDate').valueAsDate = new Date(); };
 
-        // 1. PENGENDALIAN GAMBAR
         function handleImageUpload(input) {
-            const files = input.files;
-            const container = document.getElementById('imagePreviewContainer');
+            const files = Array.from(input.files);
+            if (uploadedImages.length + files.length > 4) return alert("Maksimum 4 gambar sahaja.");
+            
             const placeholder = document.getElementById('placeholderText');
-
-            if (uploadedImages.length + files.length > 4) {
-                alert("Maksimum 4 gambar sahaja.");
-                return;
-            }
-
             if (placeholder) placeholder.remove();
 
-            Array.from(files).forEach(file => {
+            files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     uploadedImages.push(e.target.result);
                     const div = document.createElement('div');
                     div.className = "image-preview";
-                    div.innerHTML = `<img src="${e.target.result}" class="h-20 w-20 object-cover rounded border"><span class="remove-img" onclick="removeImage(this, '${e.target.result}')">×</span>`;
-                    container.appendChild(div);
+                    div.innerHTML = `<img src="${e.target.result}" class="h-20 w-20 object-cover rounded-lg border shadow-sm"><span class="remove-img" onclick="removeImage(this, '${e.target.result}')">×</span>`;
+                    document.getElementById('imagePreviewContainer').appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
@@ -139,55 +107,37 @@
         function removeImage(btn, src) {
             uploadedImages = uploadedImages.filter(img => img !== src);
             btn.parentElement.remove();
-            if (uploadedImages.length === 0) {
-                document.getElementById('imagePreviewContainer').innerHTML = '<span id="placeholderText" class="text-xs text-gray-400 m-auto">Tiada gambar dipilih</span>';
-            }
         }
 
-        // 2. JANA LAPORAN DENGAN AUTO-SWITCH AI
         async function generateAIReport() {
             const notes = document.getElementById('activityNotes').value;
-            if (!notes) return alert("Sila masukkan nota aktiviti.");
-            if (uploadedImages.length === 0) return alert("Sila muat naik sekurang-kurangnya 1 gambar.");
+            if (!notes) return alert("Sila isi nota aktiviti!");
+            if (uploadedImages.length === 0) return alert("Sila masukkan sekurang-kurangnya 1 gambar!");
 
             const btn = document.getElementById('btnGenerate');
             const loader = document.getElementById('loadingState');
-            const statusLabel = document.getElementById('modelStatus');
+            const switchLabel = document.getElementById('switchStatus');
 
             btn.classList.add('hidden');
             loader.classList.remove('hidden');
 
-            const prompt = `Anda adalah seorang Penolong Kanan Pendidikan Khas yang profesional.
-            Sila jana laporan rasmi Program Inklusif dalam Bahasa Melayu yang lengkap dan formal.
-            Mata Pelajaran: ${document.getElementById('subject').value}
-            Guru: ${document.getElementById('teacher').value}
-            Murid: ${document.getElementById('studentCount').value}
-            Tarikh: ${document.getElementById('reportDate').value}
-            Nota Aktiviti: ${notes}
-
-            Format Laporan:
-            1. Tajuk Laporan
-            2. Ringkasan Aktiviti
-            3. Pemerhatian & Tahap Penglibatan Murid
-            4. Pencapaian & Impak
-            5. Kesimpulan
-
-            Pastikan laporan panjang (sekitar 250 patah perkataan) dan sangat formal.`;
+            const prompt = `Jana laporan rasmi Program Inklusif dalam Bahasa Melayu. 
+            Mata Pelajaran: ${document.getElementById('subject').value}, Guru: ${document.getElementById('teacher').value}, 
+            Murid: ${document.getElementById('studentCount').value}, Tarikh: ${document.getElementById('reportDate').value}.
+            Nota: ${notes}.
+            Hasilkan laporan lengkap dengan: Tajuk, Ringkasan, Pemerhatian, Impak dan Penutup.`;
 
             let success = false;
 
-            // Logik Auto-Switch: Mencuba setiap model dalam senarai
+            // LOGIK UTAMA AUTO-SWITCH
             for (let i = 0; i < CONFIG.MODELS.length; i++) {
                 const currentModel = CONFIG.MODELS[i];
-                statusLabel.innerText = `Mencuba model: ${currentModel}...`;
+                switchLabel.innerText = `Sedang mencuba: ${currentModel}...`;
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${CONFIG.API_KEY_groq}`,
-                            "Content-Type": "application/json"
-                        },
+                        headers: { "Authorization": `Bearer ${CONFIG.API_KEY}`, "Content-Type": "application/json" },
                         body: JSON.stringify({
                             model: currentModel,
                             messages: [{ role: "user", content: prompt }],
@@ -196,31 +146,30 @@
                     });
 
                     const data = await response.json();
-                    
-                    if (data.choices && data.choices[0]) {
-                        const output = data.choices[0].message.content;
-                        document.getElementById('finalOutput').value = output;
-                        document.getElementById('resultSection').classList.remove('hidden');
-                        await saveAsPDF();
-                        success = true;
-                        break; // Berjaya! Keluar dari loop.
-                    } else {
-                        throw new Error(data.error ? data.error.message : "Ralat tidak diketahui");
-                    }
 
-                } catch (error) {
-                    console.warn(`Model ${currentModel} gagal: ${error.message}`);
-                    if (i === CONFIG.MODELS.length - 1) {
-                        alert("Semua model AI gagal bertindak balas. Sila periksa sambungan internet atau kuota API anda.");
+                    if (response.ok && data.choices && data.choices[0]) {
+                        document.getElementById('finalOutput').value = data.choices[0].message.content;
+                        document.getElementById('resultSection').classList.remove('hidden');
+                        success = true;
+                        await saveAsPDF(); 
+                        break; // Keluar dari loop jika berjaya
+                    } else {
+                        // Jika respon tidak OK, kita log ke console dan biar loop terus ke model seterusnya
+                        console.error(`Model ${currentModel} gagal:`, data.error ? data.error.message : "Ralat");
                     }
+                } catch (error) {
+                    console.error(`Gagal menyambung ke ${currentModel}:`, error);
                 }
+            }
+
+            if (!success) {
+                alert("Kesemua model AI sedang sibuk atau tamat tempoh. Sila cuba sebentar lagi.");
             }
 
             btn.classList.remove('hidden');
             loader.classList.add('hidden');
         }
 
-        // 3. SIMPAN SEBAGAI PDF
         async function saveAsPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -228,47 +177,28 @@
             const teacher = document.getElementById('teacher').value;
             const date = document.getElementById('reportDate').value;
 
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.text("LAPORAN PROGRAM PENDIDIKAN INKLUSIF", 105, 20, null, null, "center");
-            
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Tarikh: ${date} | Disediakan oleh: ${teacher.toUpperCase()}`, 105, 28, null, null, "center");
+            doc.setFontSize(16); doc.text("LAPORAN PROGRAM INKLUSIF", 105, 20, null, null, "center");
+            doc.setFontSize(10); doc.text(`Tarikh: ${date} | Oleh: ${teacher}`, 105, 28, null, null, "center");
             doc.line(20, 32, 190, 32);
 
-            doc.setFontSize(11);
             const splitText = doc.splitTextToSize(text, 170);
-            let yPos = 42;
-
-            splitText.forEach(line => {
-                if (yPos > 280) { doc.addPage(); yPos = 20; }
-                doc.text(line, 20, yPos);
-                yPos += 6;
-            });
+            doc.setFontSize(11); doc.text(splitText, 20, 42);
 
             if (uploadedImages.length > 0) {
                 doc.addPage();
-                doc.setFont("helvetica", "bold");
-                doc.text("LAMPIRAN BERGAMBAR:", 20, 20);
-                
-                let imgY = 30;
-                uploadedImages.forEach((img) => {
-                    if (imgY > 220) { doc.addPage(); imgY = 20; }
-                    doc.addImage(img, 'JPEG', 25, imgY, 160, 90);
-                    imgY += 100;
+                doc.text("LAMPIRAN GAMBAR:", 20, 20);
+                let y = 30;
+                uploadedImages.forEach(img => {
+                    if (y > 220) { doc.addPage(); y = 20; }
+                    doc.addImage(img, 'JPEG', 25, y, 160, 90); y += 100;
                 });
             }
-
-            doc.save(`Laporan_Inklusif_${date}.pdf`);
+            doc.save(`Laporan_${date}.pdf`);
         }
 
-        // 4. SIMPAN KE CLOUD (GOOGLE SHEET)
         async function saveToCloud() {
             const btn = document.getElementById('btnCloud');
-            btn.innerText = "Menyimpan...";
-            btn.disabled = true;
-
+            btn.innerText = "Menyimpan..."; btn.disabled = true;
             const payload = {
                 subject: document.getElementById('subject').value,
                 teacher: document.getElementById('teacher').value,
@@ -278,22 +208,12 @@
                 fullReport: document.getElementById('finalOutput').value,
                 images: uploadedImages
             };
-
             try {
-                // Gunakan GAS_URL anda
-                const response = await fetch(CONFIG.GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const resData = await response.json();
-                if(resData.status === "success") alert("✅ Berjaya disimpan!");
-                else alert("❌ Gagal simpan: " + resData.message);
-            } catch (error) {
-                alert("❌ Ralat Cloud. Pastikan Web App anda telah di-deploy.");
-            } finally {
-                btn.innerText = "☁️ Simpan ke Cloud";
-                btn.disabled = false;
-            }
+                const response = await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                const res = await response.json();
+                alert(res.status === "success" ? "✅ Berjaya disimpan!" : "❌ Gagal.");
+            } catch (e) { alert("❌ Ralat Cloud."); }
+            btn.innerText = "☁️ Simpan Cloud"; btn.disabled = false;
         }
     </script>
 </body>
