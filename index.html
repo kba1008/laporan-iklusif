@@ -3,95 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan AI Pro - Format Jadual</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Sistem Laporan AI Auto-Sync Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #1d4ed8; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .scroll-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-12">
+<body class="p-4 md:p-10" onload="fetchHistory()">
 
-    <div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
-        <div class="bg-blue-800 p-10 text-white text-center">
-            <h1 class="text-3xl font-medium uppercase tracking-widest">Sistem Laporan AI Berjadual</h1>
-            <p class="text-blue-100 mt-2">Format Profesional | Bahasa Melayu Malaysia | Pengurusan Gambar A4</p>
-        </div>
+    <div class="max-w-5xl mx-auto space-y-8">
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
+            <div class="bg-blue-700 p-8 text-white">
+                <h1 class="text-2xl font-medium tracking-tight uppercase">Sistem Laporan AI Profesional</h1>
+                <p class="text-blue-100 text-sm mt-1">Format Esei Panjang (300-350 Patah Perkataan) & Auto-Sync Google Sheet</p>
+            </div>
 
-        <div class="p-8 space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="col-span-full">
-                    <label class="block text-sm font-medium text-gray-600 mb-2">Pilih Kategori Laporan</label>
-                    <select id="reportType" class="w-full p-4 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="LAPORAN INKLUSIF">Laporan Program Pendidikan Inklusif (PPI)</option>
-                        <option value="LAPORAN KOKURIKULUM">Laporan Aktiviti Kokurikulum & Sukan</option>
-                        <option value="LAPORAN DOKUMENTASI">Laporan Dokumentasi & Acara Sekolah</option>
-                    </select>
+            <div class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="col-span-full">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Pilih Mod Laporan Khusus</label>
+                        <select id="reportType" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-600 transition-all">
+                            <option value="LAPORAN INKLUSIF">📘 Laporan Program Pendidikan Inklusif (PPI)</option>
+                            <option value="LAPORAN KOKURIKULUM">🏆 Laporan Aktiviti Kokurikulum & Sukan</option>
+                            <option value="LAPORAN DOKUMENTASI">📂 Laporan Dokumentasi & Acara Sekolah</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Nama Program</label>
+                        <input type="text" id="subject" class="w-full p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Contoh: Perkhemahan Perdana">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Nama Guru Pelapor</label>
+                        <input type="text" id="teacher" class="p-4 w-full border rounded-xl bg-gray-50 outline-none" placeholder="Nama penuh anda">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Bilangan Murid</label>
+                        <input type="number" id="studentCount" class="p-4 w-full border rounded-xl bg-gray-50 outline-none" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Tarikh Aktiviti</label>
+                        <input type="date" id="reportDate" class="p-4 w-full border rounded-xl bg-gray-50 outline-none">
+                    </div>
                 </div>
 
-                <input type="text" id="subject" class="p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Tajuk Program">
-                <input type="text" id="teacher" class="p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Nama Guru Penyedia">
-                <input type="number" id="studentCount" class="p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Jumlah Peserta">
-                <input type="date" id="reportDate" class="p-4 border rounded-xl bg-gray-50 outline-none">
-            </div>
-
-            <div class="space-y-4">
-                <label class="block text-sm font-medium text-gray-600 uppercase">Muat Naik Gambar (1 - 10 Gambar)</label>
-                <div class="flex items-center justify-center w-full">
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100">
-                        <span class="text-gray-500 text-sm">Klik untuk pilih gambar</span>
-                        <input type="file" accept="image/*" multiple class="hidden" onchange="handleImages(this)">
-                    </label>
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase">Lampiran Gambar (Min 1, Max 10)</label>
+                    <input type="file" id="fileInput" accept="image/*" multiple onchange="handleImages(this)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <div id="previewArea" class="flex gap-4 overflow-x-auto py-2 scroll-hide"></div>
                 </div>
-                <div id="previewArea" class="flex gap-4 overflow-x-auto py-4 scroll-hide"></div>
-            </div>
 
-            <textarea id="notes" rows="5" class="w-full p-5 border rounded-2xl bg-gray-50 outline-none" placeholder="Sila berikan butiran ringkas atau kronologi aktiviti..."></textarea>
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase">Nota Ringkas Aktiviti</label>
+                    <textarea id="notes" rows="4" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ceritakan perjalanan aktiviti secara ringkas..."></textarea>
+                </div>
 
-            <button onclick="generateReport()" id="btnAction" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-semibold shadow-lg hover:bg-blue-800 transition-all">Jana Laporan Dalam Satu Baris Sheet</button>
-
-            <div id="loading" class="hidden flex flex-col items-center py-6">
-                <div class="loader"></div>
-                <p id="status" class="text-blue-700 text-sm mt-4 font-medium italic">AI sedang merangka laporan (250-300 patah perkataan)...</p>
-            </div>
-        </div>
-
-        <div id="resultArea" class="hidden border-t p-10 bg-slate-50 space-y-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium text-gray-700">Pratinjau Laporan Jadual</h3>
-            </div>
-            <textarea id="output" rows="18" class="w-full p-6 border rounded-2xl bg-white text-sm leading-relaxed shadow-sm font-mono"></textarea>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="downloadPDF()" class="bg-red-700 text-white py-4 rounded-xl shadow-md hover:bg-red-800">Cetak PDF (Format A4)</button>
-                <button onclick="saveToCloud()" id="btnSave" class="bg-green-700 text-white py-4 rounded-xl shadow-md hover:bg-green-800">Simpan Ke Google Sheet</button>
+                <button onclick="generateAndSave()" id="btnAction" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-semibold shadow-lg hover:bg-blue-800 active:scale-95 transition-all text-lg">🚀 JANA LAPORAN SEKARANG</button>
+                
+                <div id="loading" class="hidden flex flex-col items-center py-4">
+                    <div class="loader"></div>
+                    <p id="status" class="text-blue-700 text-sm mt-3 font-medium animate-pulse">Model Llama-3.3-70b sedang merangka laporan...</p>
+                </div>
             </div>
         </div>
 
-        <div class="p-8 border-t bg-white">
-            <button onclick="fetchHistory()" class="w-full py-4 text-gray-500 text-sm border rounded-2xl hover:bg-gray-50">Lihat Rekod Sejarah</button>
-            <div id="historyList" class="mt-6 space-y-4 hidden"></div>
+        <div id="resultArea" class="hidden bg-white rounded-3xl shadow-xl p-8 space-y-4 border-2 border-blue-100">
+            <div class="flex justify-between items-center">
+                <h3 class="font-semibold text-gray-700 uppercase tracking-wider">Hasil Laporan (Auto-Save Berjaya)</h3>
+                <span class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">DISIMPAN KE GOOGLE SHEET</span>
+            </div>
+            <textarea id="output" rows="18" class="w-full p-6 border rounded-2xl bg-gray-50 text-sm leading-relaxed outline-none shadow-inner"></textarea>
+            <button onclick="downloadPDF()" class="w-full bg-red-600 text-white py-4 rounded-xl shadow-md font-medium hover:bg-red-700 transition-all uppercase tracking-widest">Cetak PDF (Format A4)</button>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl p-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-6 flex items-center gap-2">
+                <span>📜</span> SEJARAH LAPORAN TERKINI
+            </h3>
+            <div id="historyList" class="grid grid-cols-1 gap-4">
+                <p class="text-gray-400 text-sm animate-pulse">Menghubungkan ke Google Sheet...</p>
+            </div>
         </div>
     </div>
 
     <script>
         const CONFIG = {
             API_KEY: "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",
-            GAS_URL: "https://script.google.com/macros/s/AKfycbxL8sOO_DXZdSwW3FfP_eDz92Bhfxcp9Op9Xvc8xIpvLlV2R9F0xMqn5S64B8-92Mk4/exec",
-            MODELS: ["llama-3.3-70b-versatile", "mixtral-8x7b-32768"]
+            GAS_URL: "https://script.google.com/macros/s/AKfycbw0V8xQ9YeP559gvjjkngTdDW7GULGby9PG4jk5_8uTJgfii2GPYW2gMl2mb1BAIJ90/exec",
+            MODEL: "llama-3.3-70b-versatile" 
         };
 
         let images = [];
 
         function handleImages(input) {
             const files = Array.from(input.files);
-            if (images.length + files.length > 10) return alert("Maksima 10 gambar sahaja.");
+            if (images.length + files.length > 10) return alert("Maksimum 10 gambar.");
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -106,120 +116,121 @@
             const container = document.getElementById('previewArea');
             container.innerHTML = images.map((img, i) => `
                 <div class="relative flex-shrink-0">
-                    <img src="${img.src}" class="w-28 h-28 object-cover rounded-xl border-2 border-white shadow-md">
-                    <button class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-lg" onclick="images.splice(${i},1);renderPreviews()">×</button>
+                    <img src="${img.src}" class="w-24 h-24 object-cover rounded-xl border-2 border-white shadow-sm">
+                    <button class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center" onclick="images.splice(${i},1);renderPreviews()">×</button>
                 </div>
             `).join('');
         }
 
-        async function generateReport() {
-            if(images.length < 1) return alert("Sila masukkan minima 1 gambar.");
+        async function generateAndSave() {
             const type = document.getElementById('reportType').value;
             const note = document.getElementById('notes').value;
+            const teacherName = document.getElementById('teacher').value;
+            
+            if(!note || !teacherName || images.length === 0) return alert("Sila lengkapkan maklumat dan masukkan sekurang-kurangnya 1 gambar.");
             
             document.getElementById('btnAction').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
 
-            const systemPrompt = `Anda adalah pegawai penyedia laporan profesional. Tulis laporan dalam Bahasa Melayu Malaysia yang formal. 
-            Gunakan format JADUAL MARKDOWN dengan dua kolum: ASPEK Laporan dan BUTIRAN Terperinci. 
-            Jumlah perkataan mesti antara 250 hingga 300 patah perkataan. 
-            Jangan gunakan sebarang simbol bold (asterisk).
-            Struktur laporan mengikut jenis: ${type}.
-            Data Input: Tajuk: ${document.getElementById('subject').value}, Guru: ${document.getElementById('teacher').value}, Peserta: ${document.getElementById('studentCount').value}, Tarikh: ${document.getElementById('reportDate').value}, Nota: ${note}`;
+            const systemPrompt = `Tulis sebuah laporan esei formal yang sangat lengkap dalam Bahasa Melayu Malaysia yang tepat. 
+            Panjang laporan mestilah di antara 300 hingga 350 patah perkataan. 
+            Tulis dalam bentuk perenggan (Pendahuluan, Objektif, Butiran Program, Kekuatan/Kelemahan, dan Kesimpulan). 
+            JANGAN gunakan sebarang simbol bold (asterisk **). 
+            Format khusus untuk: ${type}. 
+            Data: Program: ${document.getElementById('subject').value}, Guru: ${teacherName}, Bil Murid: ${document.getElementById('studentCount').value}, Tarikh: ${document.getElementById('reportDate').value}, Nota: ${note}`;
 
-            let success = false;
-            for (const model of CONFIG.MODELS) {
-                try {
-                    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: { "Authorization": `Bearer ${CONFIG.API_KEY}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ model: model, messages: [{ role: "user", content: systemPrompt }] })
-                    });
-                    const data = await resp.json();
-                    if(data.choices) {
-                        document.getElementById('output').value = data.choices[0].message.content;
-                        document.getElementById('resultArea').classList.remove('hidden');
-                        success = true; break;
-                    }
-                } catch (e) {}
+            try {
+                const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${CONFIG.API_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        model: CONFIG.MODEL, 
+                        messages: [{ role: "user", content: systemPrompt }],
+                        temperature: 0.7
+                    })
+                });
+                const data = await resp.json();
+                const successReport = data.choices[0].message.content;
+
+                document.getElementById('output').value = successReport;
+                document.getElementById('resultArea').classList.remove('hidden');
+                
+                document.getElementById('status').innerText = "Menghantar data ke Google Sheet...";
+                await autoSaveToGS(successReport);
+                fetchHistory(); // Segarkan senarai sejarah bawah
+
+            } catch (e) {
+                alert("Ralat AI. Sila semak sambungan internet anda.");
             }
-            if(!success) alert("Ralat model AI.");
+
             document.getElementById('btnAction').classList.remove('hidden');
             document.getElementById('loading').classList.add('hidden');
         }
 
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // MUKA SURAT 1: JADUAL
-            doc.setFontSize(16);
-            doc.text(document.getElementById('reportType').value, 105, 20, null, null, "center");
-            
-            const content = document.getElementById('output').value;
-            doc.setFontSize(10);
-            const lines = doc.splitTextToSize(content, 160); // Margin kiri kanan seimbang
-            doc.text(lines, 25, 40);
-
-            // MUKA SURAT 2: GAMBAR (OPTIMAL GRID)
-            if(images.length > 0) {
-                doc.addPage();
-                doc.text("LAMPIRAN GAMBAR AKTIVITI", 105, 15, null, null, "center");
-                
-                let x = 15, y = 25;
-                let imgW = 85, imgH = 50; // Saiz dioptimumkan untuk muat 10 gambar (5 baris x 2 kolum)
-
-                images.forEach((img, i) => {
-                    if (i > 0 && i % 2 === 0) { x = 15; y += 55; }
-                    doc.addImage(img.src, 'JPEG', x, y, imgW, imgH);
-                    x += 95;
-                });
-            }
-            doc.save("Laporan_Berjadual_Pro.pdf");
-        }
-
-        async function saveToCloud() {
-            const btn = document.getElementById('btnSave');
-            btn.innerText = "Sedang Menyimpan...";
+        async function autoSaveToGS(reportText) {
             const payload = {
                 action: "MASUK",
                 passcode: "101010",
                 nama: document.getElementById('teacher').value,
                 type: document.getElementById('reportType').value,
                 tujuan: document.getElementById('subject').value,
-                report: document.getElementById('output').value,
+                report: reportText,
                 images: images.map(img => ({ data: img.src.split(',')[1], name: img.name }))
             };
             try {
-                const res = await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-                alert("Berjaya disimpan dalam satu baris Sheet!");
-            } catch (e) { alert("Gagal Cloud."); }
-            btn.innerText = "Simpan Ke Google Sheet";
+                await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+            } catch (e) { console.error("Auto-save gagal."); }
         }
 
         async function fetchHistory() {
-            const list = document.getElementById('historyList');
-            list.innerHTML = "Memuatkan rekod...";
-            list.classList.remove('hidden');
             try {
                 const resp = await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify({ action: "HISTORY", passcode: "101010" }) });
                 const data = await resp.json();
-                list.innerHTML = data.reverse().map(rec => `
-                    <div class="p-5 bg-gray-50 border rounded-2xl cursor-pointer hover:border-blue-500 transition-all" onclick="restore('${rec.report.replace(/'/g, "\\'")}')">
-                        <div class="flex justify-between text-[10px] text-gray-400 mb-2"><span>${rec.date}</span><span>${rec.type}</span></div>
-                        <div class="font-medium text-gray-800">${rec.tujuan}</div>
-                        <div class="text-[9px] text-blue-600 mt-2 truncate">Pautan Arkib: ${rec.links}</div>
+                document.getElementById('historyList').innerHTML = data.reverse().map(rec => `
+                    <div class="p-5 border-l-4 border-blue-600 bg-white shadow-sm rounded-r-xl border border-gray-100">
+                        <div class="flex justify-between text-[10px] text-gray-400 font-bold"><span>${rec.date}</span><span class="text-blue-500">${rec.type}</span></div>
+                        <div class="font-semibold text-gray-800 text-md mt-1">${rec.tujuan}</div>
+                        <div class="text-[10px] text-gray-500 mt-1 italic">Pelapor: ${rec.nama}</div>
+                        <div class="flex gap-2 mt-4 overflow-x-auto pb-1">
+                            ${rec.imgCols.filter(link => link !== "").map((link, idx) => `<a href="${link}" target="_blank" class="text-[9px] bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition-all">Gmbr ${idx+1}</a>`).join('')}
+                            <button onclick="restore('${rec.report.replace(/'/g, "\\'")}')" class="text-[9px] bg-gray-800 text-white px-3 py-1.5 rounded-lg ml-auto">LIHAT TEKS</button>
+                        </div>
                     </div>
                 `).join('');
-            } catch (e) { list.innerHTML = "Ralat memuat data."; }
+            } catch (e) { document.getElementById('historyList').innerHTML = "Gagal memuat sejarah."; }
         }
 
         function restore(txt) {
             document.getElementById('output').value = txt;
             document.getElementById('resultArea').classList.remove('hidden');
-            document.getElementById('resultArea').scrollIntoView();
+            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Muka Surat 1: Teks
+            doc.setFontSize(16);
+            doc.text(document.getElementById('reportType').value, 105, 20, null, null, "center");
+            doc.setFontSize(10);
+            const lines = doc.splitTextToSize(document.getElementById('output').value, 160);
+            doc.text(lines, 25, 40);
+
+            // Muka Surat 2: Gambar (Susunan Maksimum A4)
+            if(images.length > 0) {
+                doc.addPage();
+                doc.setFontSize(14);
+                doc.text("LAMPIRAN GAMBAR AKTIVITI", 105, 15, null, null, "center");
+                let x = 15, y = 25;
+                images.forEach((img, i) => {
+                    if (i > 0 && i % 2 === 0) { x = 15; y += 52; }
+                    doc.addImage(img.src, 'JPEG', x, y, 85, 48);
+                    x += 95;
+                });
+            }
+            doc.save(`Laporan_${Date.now()}.pdf`);
         }
     </script>
 </body>
 </html>
-
