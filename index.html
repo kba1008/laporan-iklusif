@@ -3,97 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan AI Auto-Sync Pro</title>
+    <title>Sistem Laporan AI Pintar 3-in-1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #1d4ed8; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .scroll-hide::-webkit-scrollbar { display: none; }
+        /* Font Monospace untuk pastikan format laporan nampak kemas macam mesin taip */
+        textarea { font-family: 'Courier New', Courier, monospace; line-height: 1.4; }
     </style>
 </head>
-<body class="p-4 md:p-10" onload="fetchHistory()">
+<body class="p-3 md:p-8" onload="fetchHistory()">
 
-    <div class="max-w-5xl mx-auto space-y-8">
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
-            <div class="bg-blue-700 p-8 text-white">
-                <h1 class="text-2xl font-medium tracking-tight uppercase">Sistem Laporan AI Profesional</h1>
-                <p class="text-blue-100 text-sm mt-1">Format Esei Panjang (300-350 Patah Perkataan) & Auto-Sync Google Sheet</p>
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+            <div class="bg-indigo-900 p-6 text-white flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight uppercase">Penjana Laporan AI Sekolah</h1>
+                    <p class="text-indigo-200 text-xs mt-1">Inklusif | Kokurikulum | Dokumentasi (Auto-Expand)</p>
+                </div>
+                <div class="text-right hidden md:block">
+                    <div class="text-xs bg-indigo-800 py-1 px-3 rounded-full">Versi Pro 3.0</div>
+                </div>
             </div>
 
-            <div class="p-8 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="col-span-full">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Pilih Mod Laporan Khusus</label>
-                        <select id="reportType" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-600 transition-all">
-                            <option value="LAPORAN INKLUSIF">📘 Laporan Program Pendidikan Inklusif (PPI)</option>
-                            <option value="LAPORAN KOKURIKULUM">🏆 Laporan Aktiviti Kokurikulum & Sukan</option>
-                            <option value="LAPORAN DOKUMENTASI">📂 Laporan Dokumentasi & Acara Sekolah</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Nama Program</label>
-                        <input type="text" id="subject" class="w-full p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Contoh: Perkhemahan Perdana">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Nama Guru Pelapor</label>
-                        <input type="text" id="teacher" class="p-4 w-full border rounded-xl bg-gray-50 outline-none" placeholder="Nama penuh anda">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Bilangan Murid</label>
-                        <input type="number" id="studentCount" class="p-4 w-full border rounded-xl bg-gray-50 outline-none" placeholder="0">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1 ml-1">Tarikh Aktiviti</label>
-                        <input type="date" id="reportDate" class="p-4 w-full border rounded-xl bg-gray-50 outline-none">
-                    </div>
+            <div class="p-6 md:p-8 space-y-6">
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <label class="block text-xs font-bold text-indigo-800 uppercase mb-2">Langkah 1: Pilih Jenis Laporan</label>
+                    <select id="reportType" class="w-full p-3 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-gray-700">
+                        <option value="LAPORAN INKLUSIF">📘 Laporan Pendidikan Inklusif (PPI)</option>
+                        <option value="LAPORAN KOKURIKULUM">🏆 Laporan Aktiviti Kokurikulum</option>
+                        <option value="LAPORAN DOKUMENTASI">📂 Laporan Dokumentasi (Format Baru)</option>
+                    </select>
                 </div>
 
-                <div class="space-y-3">
-                    <label class="block text-xs font-semibold text-gray-500 uppercase">Lampiran Gambar (Min 1, Max 10)</label>
-                    <input type="file" id="fileInput" accept="image/*" multiple onchange="handleImages(this)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <div id="previewArea" class="flex gap-4 overflow-x-auto py-2 scroll-hide"></div>
+                <div>
+                    <p class="text-xs text-gray-400 italic mb-3">* Isi maklumat asas yang perlu sahaja. AI akan uruskan selebihnya.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label-text">Nama Program / Unit / Subjek</label>
+                            <input type="text" id="subject" class="input-field" placeholder="Cth: Bola Jaring / Minggu Bahasa">
+                        </div>
+                        <div>
+                            <label class="label-text">Tarikh & Masa</label>
+                            <div class="flex gap-2">
+                                <input type="date" id="reportDate" class="input-field w-2/3">
+                                <input type="time" id="reportTime" class="input-field w-1/3">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="label-text">Guru Utama (Pelapor)</label>
+                            <input type="text" id="teacher" class="input-field" placeholder="Nama Anda">
+                        </div>
+                        <div>
+                            <label class="label-text">Guru Pembantu (Jika Ada)</label>
+                            <input type="text" id="assistant" class="input-field" placeholder="Optional">
+                        </div>
+
+                        <div>
+                            <label class="label-text">Bilangan Peserta / Kehadiran</label>
+                            <input type="text" id="studentCount" class="input-field" placeholder="Cth: 30 Orang">
+                        </div>
+                        <div>
+                            <label class="label-text">Lokasi / Tempat</label>
+                            <input type="text" id="location" class="input-field" placeholder="Cth: Dewan / Padang">
+                        </div>
+                        
+                        <div class="col-span-full">
+                            <label class="label-text">Kumpulan Sasaran (Kelas/Tahun)</label>
+                            <input type="text" id="targetGroup" class="input-field" placeholder="Cth: Semua Murid Tahun 6">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-2">
-                    <label class="block text-xs font-semibold text-gray-500 uppercase">Nota Ringkas Aktiviti</label>
-                    <textarea id="notes" rows="4" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ceritakan perjalanan aktiviti secara ringkas..."></textarea>
+                    <label class="label-text">Muat Naik Gambar (1 - 10 Keping)</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label class="flex flex-col w-full h-24 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 cursor-pointer items-center justify-center">
+                            <span class="text-gray-400 text-sm">Tekan untuk pilih gambar</span>
+                            <input type="file" id="fileInput" accept="image/*" multiple onchange="handleImages(this)" class="hidden">
+                        </label>
+                    </div>
+                    <div id="previewArea" class="flex gap-3 overflow-x-auto py-2 scroll-hide"></div>
                 </div>
 
-                <button onclick="generateAndSave()" id="btnAction" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-semibold shadow-lg hover:bg-blue-800 active:scale-95 transition-all text-lg">🚀 JANA LAPORAN SEKARANG</button>
+                <div class="space-y-2">
+                    <label class="label-text text-indigo-700">Poin Ringkas Aktiviti (AI Akan Kembangkan)</label>
+                    <textarea id="notes" rows="4" class="w-full p-4 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-400 text-sm" placeholder="Contoh: 
+- Senam robik pagi
+- Belajar teknik hantaran bola
+- Main 'Monyet Curi Bola'
+- Murid seronok dan berpeluh"></textarea>
+                </div>
+
+                <button onclick="generateAndSave()" id="btnAction" class="w-full bg-indigo-700 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-indigo-800 active:scale-95 transition-all text-md tracking-wide">
+                    ✨ JANA LAPORAN PENUH
+                </button>
                 
                 <div id="loading" class="hidden flex flex-col items-center py-4">
                     <div class="loader"></div>
-                    <p id="status" class="text-blue-700 text-sm mt-3 font-medium animate-pulse">Model Llama-3.3-70b sedang merangka laporan...</p>
+                    <p id="status" class="text-indigo-700 text-sm mt-3 font-medium animate-pulse">AI sedang mengembangkan poin anda...</p>
                 </div>
             </div>
         </div>
 
-        <div id="resultArea" class="hidden bg-white rounded-3xl shadow-xl p-8 space-y-4 border-2 border-blue-100">
-            <div class="flex justify-between items-center">
-                <h3 class="font-semibold text-gray-700 uppercase tracking-wider">Hasil Laporan (Auto-Save Berjaya)</h3>
-                <span class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">DISIMPAN KE GOOGLE SHEET</span>
+        <div id="resultArea" class="hidden bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-4 border border-gray-200">
+            <div class="flex justify-between items-center border-b pb-4">
+                <h3 class="font-bold text-gray-800 uppercase tracking-wider">Laporan Siap</h3>
+                <span class="text-[10px] bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold">DISIMPAN KE GOOGLE SHEET ✅</span>
             </div>
-            <textarea id="output" rows="18" class="w-full p-6 border rounded-2xl bg-gray-50 text-sm leading-relaxed outline-none shadow-inner"></textarea>
-            <button onclick="downloadPDF()" class="w-full bg-red-600 text-white py-4 rounded-xl shadow-md font-medium hover:bg-red-700 transition-all uppercase tracking-widest">Cetak PDF (Format A4)</button>
+            
+            <textarea id="output" rows="18" class="w-full p-5 border rounded-xl bg-slate-50 text-sm text-gray-800 outline-none shadow-inner whitespace-pre-wrap resize-none"></textarea>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                 <button onclick="copyToClipboard()" class="bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700">
+                    Salin Teks Sahaja
+                </button>
+                <button onclick="downloadPDF()" class="bg-red-700 text-white py-3 rounded-lg font-semibold hover:bg-red-800 shadow-md">
+                    📄 Muat Turun PDF (A4)
+                </button>
+            </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-xl p-8">
-            <h3 class="text-lg font-semibold text-gray-700 mb-6 flex items-center gap-2">
-                <span>📜</span> SEJARAH LAPORAN TERKINI
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <h3 class="text-sm font-bold text-gray-500 uppercase mb-4 flex items-center gap-2">
+                <span>📂</span> Rekod Terdahulu
             </h3>
-            <div id="historyList" class="grid grid-cols-1 gap-4">
-                <p class="text-gray-400 text-sm animate-pulse">Menghubungkan ke Google Sheet...</p>
+            <div id="historyList" class="space-y-3">
+                <p class="text-gray-400 text-sm animate-pulse">Menghubungkan ke pangkalan data...</p>
             </div>
         </div>
     </div>
 
+    <style>
+        .label-text { display: block; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 0.25rem; }
+        .input-field { width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; background-color: #ffffff; outline: none; transition: all; font-size: 0.875rem; }
+        .input-field:focus { ring: 2px solid #6366f1; border-color: #6366f1; }
+    </style>
+
     <script>
         const CONFIG = {
-            API_KEY: "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",
-            GAS_URL: "https://script.google.com/macros/s/AKfycbw0V8xQ9YeP559gvjjkngTdDW7GULGby9PG4jk5_8uTJgfii2GPYW2gMl2mb1BAIJ90/exec",
+            API_KEY: "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", 
+            // URL GAS Anda
+            GAS_URL: "https://script.google.com/macros/s/AKfycbyV9fBEz_y_S4QUKyMnHCZzm21I64iKj3ct1fmA93ZpOTfXiLvZ-Sry3yDEV5Za5cNW/exec",
             MODEL: "llama-3.3-70b-versatile" 
         };
 
@@ -115,29 +171,168 @@
         function renderPreviews() {
             const container = document.getElementById('previewArea');
             container.innerHTML = images.map((img, i) => `
-                <div class="relative flex-shrink-0">
-                    <img src="${img.src}" class="w-24 h-24 object-cover rounded-xl border-2 border-white shadow-sm">
-                    <button class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center" onclick="images.splice(${i},1);renderPreviews()">×</button>
+                <div class="relative flex-shrink-0 group">
+                    <img src="${img.src}" class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm">
+                    <button class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" onclick="images.splice(${i},1);renderPreviews()">×</button>
                 </div>
             `).join('');
         }
 
         async function generateAndSave() {
+            // Ambil semua data (walaupun kosong)
             const type = document.getElementById('reportType').value;
-            const note = document.getElementById('notes').value;
-            const teacherName = document.getElementById('teacher').value;
-            
-            if(!note || !teacherName || images.length === 0) return alert("Sila lengkapkan maklumat dan masukkan sekurang-kurangnya 1 gambar.");
+            const subject = document.getElementById('subject').value || "[Nama Program Tidak Dinyatakan]";
+            const date = document.getElementById('reportDate').value || new Date().toISOString().split('T')[0];
+            const time = document.getElementById('reportTime').value || "08:00";
+            const teacher = document.getElementById('teacher').value || "[Nama Guru]";
+            const assistant = document.getElementById('assistant').value || "-";
+            const studentCount = document.getElementById('studentCount').value || "Tidak dinyatakan";
+            const location = document.getElementById('location').value || "Kawasan Sekolah";
+            const targetGroup = document.getElementById('targetGroup').value || "Murid Sekolah";
+            const notes = document.getElementById('notes').value;
+
+            // Hanya nota dan sekurang-kurangnya 1 gambar wajib untuk konteks AI
+            if(!notes) return alert("Sila masukkan sedikit poin ringkas aktiviti untuk AI kembangkan.");
             
             document.getElementById('btnAction').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
 
-            const systemPrompt = `Tulis sebuah laporan esei formal yang sangat lengkap dalam Bahasa Melayu Malaysia yang tepat. 
-            Panjang laporan mestilah di antara 300 hingga 350 patah perkataan. 
-            Tulis dalam bentuk perenggan (Pendahuluan, Objektif, Butiran Program, Kekuatan/Kelemahan, dan Kesimpulan). 
-            JANGAN gunakan sebarang simbol bold (asterisk **). 
-            Format khusus untuk: ${type}. 
-            Data: Program: ${document.getElementById('subject').value}, Guru: ${teacherName}, Bil Murid: ${document.getElementById('studentCount').value}, Tarikh: ${document.getElementById('reportDate').value}, Nota: ${note}`;
+            let systemPrompt = "";
+
+            // --- LOGIK AI MENGIKUT JENIS LAPORAN ---
+
+            if (type === "LAPORAN DOKUMENTASI") {
+                // FORMAT BARU: DOKUMENTASI (AI EXPANDED)
+                systemPrompt = `Anda adalah pembantu dokumentasi sekolah profesional.
+                Sila kembangkan poin ringkas pengguna menjadi laporan lengkap mengikut format di bawah.
+                
+                DATA PENGGUNA:
+                Tajuk: ${subject}, Tarikh: ${date}, Masa: ${time}, Lokasi: ${location}, Sasaran: ${targetGroup}, Peserta: ${studentCount}
+                Guru Utama: ${teacher}, Pembantu: ${assistant}
+                POIN AKTIVITI (Sila kembangkan): ${notes}
+
+                --- FORMAT MULA ---
+                LAPORAN AKTIVITI [NAMA UNIT/PROGRAM]
+                ====================================
+
+                [1. MAKLUMAT ASAS] 
+                - Nama Program/Unit : ${subject}
+                - Tarikh            : ${date}
+                - Masa              : ${time}
+                - Lokasi            : ${location}
+                - Kumpulan Sasaran  : ${targetGroup}
+                - Bilangan Peserta  : ${studentCount}
+                - Guru Utama        : ${teacher}
+                - Guru Pembantu     : ${assistant}
+
+                [2. RINGKASAN AKTIVITI (AI-EXPANDED)]
+                - FASA AWAL: [Tulis satu perenggan lengkap tentang permulaan/pemanasan badan berdasarkan poin '${notes}'].
+                - FASA UTAMA: [Kembangkan aktiviti utama dengan terperinci dan ayat gramatis. Masukkan unsur teknikal jika perlu].
+                - FASA AKTIVITI: [Ceritakan tentang penglibatan murid dalam aktiviti pengukuhan/permainan].
+                - FASA AKHIR: [Ceritakan tentang penutup, gotong-royong, dan bersurai].
+
+                [3. IMPAK & REFLEKSI (AI-GENERATED)]
+                - [Jana satu perenggan refleksi positif tentang penglibatan murid, disiplin, dan keberkesanan program ini secara profesional].
+
+                --- FORMAT TAMAT ---
+                Pastikan teks di bawah [2. RINGKASAN] dan [3. IMPAK] dijana dengan ayat yang panjang, matang dan lengkap. Jangan biarkan kosong.`;
+            
+            } else if (type === "LAPORAN INKLUSIF") {
+                // FORMAT PPI (LAMA TAPI PADU)
+                systemPrompt = `Tulis Laporan Pendidikan Inklusif (Separa). Format TEPAT. Jangan guna Bold.
+                Data: Subjek: ${subject}, Guru: ${teacher}, Murid: ${studentCount}, Tarikh: ${date}, Masa: ${time}, Nota: ${notes}
+
+                --- FORMAT MULA ---
+                LAPORAN PELAKSANAAN PROGRAM PENDIDIKAN INKLUSIF (SEPARA)
+                -------------------------------------------------------
+
+                1. MAKLUMAT ASAS
+                ----------------
+                Tarikh              : ${date}
+                Masa                : ${time}
+                Mata Pelajaran      : ${subject}
+                Guru Pendamping     : ${teacher}
+                Bilangan Murid PPKI : ${studentCount}
+
+                2. OBJEKTIF
+                -----------
+                * Meningkatkan kemahiran sosial dan komunikasi.
+                * [Objektif relevan subjek]
+
+                3. AKTIVITI GURU DAN PROSES PEMBELAJARAN
+                ---------------------------------------
+                [FASA PENGENALAN]
+                [Kembangkan poin '${notes}' menjadi ayat induksi]
+
+                [FASA PENYAMPAIAN]
+                [Kembangkan aktiviti utama dengan terperinci]
+
+                [FASA PENUTUP]
+                [Kembangkan aktiviti penutup]
+
+                4. REFLEKSI DAN PEMERHATIAN
+                ---------------------------
+                * PENCAPAIAN: Objektif tercapai.
+                * SOSIAL: Interaksi murid sangat baik.
+                * KESIMPULAN: Program berjaya.
+
+                Disediakan oleh:
+                -------------------------------
+                (Tandatangan Guru Pendamping)
+                Nama: ${teacher}
+                --- FORMAT TAMAT ---`;
+
+            } else {
+                // FORMAT KOKURIKULUM (LAMA TAPI PADU)
+                systemPrompt = `Tulis Laporan Aktiviti Kokurikulum Mingguan. Format TEPAT.
+                Data: Unit: ${subject}, Guru: ${teacher}, Kehadiran: ${studentCount}, Tarikh: ${date}, Masa: ${time}, Tempat: ${location}, Nota: ${notes}
+
+                --- FORMAT MULA ---
+                LAPORAN AKTIVITI MINGGUAN KOKURIKULUM
+                -------------------------------------
+
+                1. MAKLUMAT ASAS
+                ----------------
+                Unit Kokurikulum    : ${subject}
+                Tarikh / Hari       : ${date}
+                Masa                : ${time}
+                Tempat              : ${location}
+                Kehadiran Murid     : ${studentCount}
+                Kehadiran Guru      : ${teacher}
+
+                2. OBJEKTIF AKTIVITI
+                --------------------
+                * [Jana 3 objektif sesuai dengan aktiviti '${notes}']
+
+                3. RINGKASAN AKTIVITI GURU DAN MURID
+                ------------------------------------
+                [FASA PENGENALAN]
+                * Mengambil kehadiran.
+                * [Ayat pembuka aktiviti]
+
+                [FASA PENYAMPAIAN / AMALI]
+                * Tajuk Aktiviti: [Tajuk dari nota]
+                * [Kembangkan poin '${notes}' kepada 3-4 ayat aktiviti lengkap]
+
+                [FASA PENUTUP]
+                * Refleksi dan bersurai.
+
+                4. REFLEKSI & PEMERHATIAN
+                -------------------------
+                * KEKUATAN: [Jana kekuatan]
+                * KELEMAHAN: [Jana kelemahan/tiada]
+                * PENAMBAHBAIKAN: [Jana cadangan]
+
+                5. CATATAN / ULASAN
+                ------------------------------
+                Aktiviti berjalan lancar.
+
+                Disediakan oleh:
+                -------------------------------
+                (Tandatangan Guru Penasihat)
+                Nama: ${teacher}
+                --- FORMAT TAMAT ---`;
+            }
 
             try {
                 const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -146,7 +341,7 @@
                     body: JSON.stringify({ 
                         model: CONFIG.MODEL, 
                         messages: [{ role: "user", content: systemPrompt }],
-                        temperature: 0.7
+                        temperature: 0.65 
                     })
                 });
                 const data = await resp.json();
@@ -154,32 +349,33 @@
 
                 document.getElementById('output').value = successReport;
                 document.getElementById('resultArea').classList.remove('hidden');
+                document.getElementById('status').innerText = "Sedang simpan ke Google Sheet...";
                 
-                document.getElementById('status').innerText = "Menghantar data ke Google Sheet...";
-                await autoSaveToGS(successReport);
-                fetchHistory(); // Segarkan senarai sejarah bawah
+                // Hantar ke Google Sheet
+                await autoSaveToGS(successReport, subject, teacher, type);
+                fetchHistory();
 
             } catch (e) {
-                alert("Ralat AI. Sila semak sambungan internet anda.");
+                alert("Ralat: Sila pastikan internet stabil.");
             }
 
             document.getElementById('btnAction').classList.remove('hidden');
             document.getElementById('loading').classList.add('hidden');
         }
 
-        async function autoSaveToGS(reportText) {
+        async function autoSaveToGS(reportText, subject, teacher, type) {
             const payload = {
                 action: "MASUK",
                 passcode: "101010",
-                nama: document.getElementById('teacher').value,
-                type: document.getElementById('reportType').value,
-                tujuan: document.getElementById('subject').value,
+                nama: teacher,
+                type: type,
+                tujuan: subject,
                 report: reportText,
                 images: images.map(img => ({ data: img.src.split(',')[1], name: img.name }))
             };
             try {
                 await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-            } catch (e) { console.error("Auto-save gagal."); }
+            } catch (e) { console.error("Auto-save error"); }
         }
 
         async function fetchHistory() {
@@ -187,17 +383,27 @@
                 const resp = await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify({ action: "HISTORY", passcode: "101010" }) });
                 const data = await resp.json();
                 document.getElementById('historyList').innerHTML = data.reverse().map(rec => `
-                    <div class="p-5 border-l-4 border-blue-600 bg-white shadow-sm rounded-r-xl border border-gray-100">
-                        <div class="flex justify-between text-[10px] text-gray-400 font-bold"><span>${rec.date}</span><span class="text-blue-500">${rec.type}</span></div>
-                        <div class="font-semibold text-gray-800 text-md mt-1">${rec.tujuan}</div>
-                        <div class="text-[10px] text-gray-500 mt-1 italic">Pelapor: ${rec.nama}</div>
-                        <div class="flex gap-2 mt-4 overflow-x-auto pb-1">
-                            ${rec.imgCols.filter(link => link !== "").map((link, idx) => `<a href="${link}" target="_blank" class="text-[9px] bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition-all">Gmbr ${idx+1}</a>`).join('')}
-                            <button onclick="restore('${rec.report.replace(/'/g, "\\'")}')" class="text-[9px] bg-gray-800 text-white px-3 py-1.5 rounded-lg ml-auto">LIHAT TEKS</button>
+                    <div class="p-4 border-l-4 border-indigo-600 bg-white shadow-sm rounded-r-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${rec.date}</span>
+                            <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">${rec.type.replace('LAPORAN ', '')}</span>
+                        </div>
+                        <div class="font-bold text-gray-800 text-sm truncate">${rec.tujuan}</div>
+                        <div class="text-xs text-gray-500 mt-1">Oleh: ${rec.nama}</div>
+                        
+                        <div class="flex gap-2 mt-3 overflow-x-auto pb-1">
+                            ${rec.imgCols.filter(link => link !== "").map((link, idx) => `
+                                <a href="${link}" target="_blank" class="text-[10px] flex items-center gap-1 bg-white border border-gray-200 px-2 py-1 rounded hover:bg-indigo-50 text-indigo-600 transition-colors">
+                                    📷 Foto ${idx+1}
+                                </a>
+                            `).join('')}
+                            <button onclick="restore('${rec.report.replace(/'/g, "\\'")}')" class="text-[10px] ml-auto bg-gray-800 text-white px-3 py-1 rounded hover:bg-gray-900 font-medium">
+                                LIHAT
+                            </button>
                         </div>
                     </div>
                 `).join('');
-            } catch (e) { document.getElementById('historyList').innerHTML = "Gagal memuat sejarah."; }
+            } catch (e) { document.getElementById('historyList').innerHTML = "Tiada rekod dijumpai."; }
         }
 
         function restore(txt) {
@@ -206,27 +412,47 @@
             document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
         }
 
+        function copyToClipboard() {
+            const copyText = document.getElementById("output");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value);
+            alert("Teks laporan berjaya disalin!");
+        }
+
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // Muka Surat 1: Teks
-            doc.setFontSize(16);
-            doc.text(document.getElementById('reportType').value, 105, 20, null, null, "center");
-            doc.setFontSize(10);
-            const lines = doc.splitTextToSize(document.getElementById('output').value, 160);
-            doc.text(lines, 25, 40);
+            const content = document.getElementById('output').value;
 
-            // Muka Surat 2: Gambar (Susunan Maksimum A4)
+            doc.setFont("courier", "normal"); 
+            doc.setFontSize(10);
+            
+            // Header ringkas
+            doc.text("DOKUMEN DIJANA OLEH SISTEM AI", 105, 10, null, null, "center");
+
+            const lines = doc.splitTextToSize(content, 170);
+            let y = 20;
+            
+            // Tulis baris demi baris, tambah page jika perlu
+            lines.forEach(line => {
+                if (y > 280) { doc.addPage(); y = 20; }
+                doc.text(line, 20, y);
+                y += 5;
+            });
+
+            // Muka Surat Gambar
             if(images.length > 0) {
                 doc.addPage();
-                doc.setFontSize(14);
-                doc.text("LAMPIRAN GAMBAR AKTIVITI", 105, 15, null, null, "center");
-                let x = 15, y = 25;
+                doc.setFont("helvetica", "bold");
+                doc.text("LAMPIRAN BERGAMBAR", 105, 15, null, null, "center");
+                
+                let gx = 15, gy = 25;
                 images.forEach((img, i) => {
-                    if (i > 0 && i % 2 === 0) { x = 15; y += 52; }
-                    doc.addImage(img.src, 'JPEG', x, y, 85, 48);
-                    x += 95;
+                    if (i > 0 && i % 2 === 0) { gx = 15; gy += 55; }
+                    if (gy > 250) { doc.addPage(); gy = 25; } 
+                    doc.addImage(img.src, 'JPEG', gx, gy, 85, 50);
+                    gx += 95;
                 });
             }
             doc.save(`Laporan_${Date.now()}.pdf`);
