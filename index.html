@@ -33,7 +33,18 @@
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Gambar (Max 4)</label>
-                <input type="file" id="imageInput" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700" onchange="handleImageUpload(this)">
+                <div class="flex gap-3 mb-2">
+                    <label class="flex-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl border border-indigo-200 text-center transition-all">
+                        <div class="text-2xl mb-1">📸</div>
+                        <div class="text-xs font-bold text-indigo-700">Kamera</div>
+                        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(this)">
+                    </label>
+                    <label class="flex-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl border border-indigo-200 text-center transition-all">
+                        <div class="text-2xl mb-1">🖼️</div>
+                        <div class="text-xs font-bold text-indigo-700">Upload</div>
+                        <input type="file" accept="image/*" multiple class="hidden" onchange="handleImageUpload(this)">
+                    </label>
+                </div>
                 <div id="imagePreviewContainer" class="flex gap-2 mt-3 overflow-x-auto p-2 border border-dashed rounded-xl min-h-[80px]"></div>
             </div>
 
@@ -57,6 +68,16 @@
             <div class="flex gap-3">
                 <button onclick="saveAsPDF()" class="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl">📄 PDF</button>
                 <button onclick="saveToCloud()" id="btnCloud" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl">☁️ Cloud</button>
+            </div>
+        </div>
+
+        <!-- NEW: HISTORY SECTION -->
+        <div class="border-t p-6 bg-white">
+            <button onclick="loadHistory()" id="btnHistory" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl flex justify-center items-center gap-2 transition-all">
+                <span>🗂️ Lihat Sejarah Laporan</span>
+            </button>
+            <div id="historyContainer" class="mt-4 hidden space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- History items will be injected here -->
             </div>
         </div>
     </div>
@@ -112,12 +133,7 @@
             btn.classList.add('hidden');
             loader.classList.remove('hidden');
 
-            const prompt = `Hasilkan laporan rasmi Program Pendidikan Inklusif yang formal dalam Bahasa Melayu.
-            Mata Pelajaran: ${document.getElementById('subject').value}
-            Nama Guru: ${document.getElementById('teacher').value}
-            Bilangan Murid: ${document.getElementById('studentCount').value}
-            Tarikh: ${document.getElementById('reportDate').value}
-            Butiran Aktiviti: ${notes}`;
+            const prompt = `Hasilkan laporan rasmi Program Pendidikan Inklusif yang formal dalam Bahasa Melayu.\n            Mata Pelajaran: ${document.getElementById('subject').value}\n            Nama Guru: ${document.getElementById('teacher').value}\n            Bilangan Murid: ${document.getElementById('studentCount').value}\n            Tarikh: ${document.getElementById('reportDate').value}\n            Butiran Aktiviti: ${notes}`;
 
             let success = false;
 
@@ -193,6 +209,65 @@
                 alert("Berjaya disimpan!");
             } catch (e) { alert("Ralat simpan."); }
             btn.innerText = "☁️ Simpan Cloud"; btn.disabled = false;
+        }
+
+        // NEW: FUNGSI TARIK DATA SEJARAH
+        async function loadHistory() {
+            const btn = document.getElementById('btnHistory');
+            const container = document.getElementById('historyContainer');
+            btn.innerText = "Sedang Mengambil Data..."; btn.disabled = true;
+            container.innerHTML = ""; 
+            container.classList.add("hidden");
+
+            const payload = {
+                action: "HISTORY", // Keyword untuk trigger bacaan di GAS
+                passcode: "101010"
+            };
+
+            try {
+                // Menggunakan POST seperti saveToCloud untuk elak isu CORS
+                const response = await fetch(CONFIG.GAS_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify(payload) 
+                });
+                const data = await response.json();
+                
+                // Andaikan data adalah array atau { records: [] }
+                const records = Array.isArray(data) ? data : (data.records || []);
+                
+                if (records.length === 0) {
+                    alert("Tiada rekod dijumpai.");
+                } else {
+                    container.classList.remove("hidden");
+                    records.forEach(rec => {
+                        // Structure item sejarah
+                        const el = document.createElement("div");
+                        el.className = "p-3 bg-gray-50 border rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-all";
+                        // Fallback keys sekiranya nama column berbeza
+                        const dateDisplay = rec.date || rec.tarikh || "-No Date-";
+                        const subjDisplay = rec.tujuan || rec.subject || "-No Subject-";
+                        const content = rec.fullReport || rec.laporan || "";
+
+                        el.innerHTML = `
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-gray-600">${dateDisplay}</span>
+                                <span class="text-[10px] bg-white border px-2 rounded text-indigo-600">CLOUD</span>
+                            </div>
+                            <div class="font-semibold text-sm text-gray-800">${subjDisplay}</div>
+                        `;
+                        el.onclick = () => {
+                            document.getElementById('finalOutput').value = content;
+                            document.getElementById('resultSection').classList.remove('hidden');
+                            document.getElementById('finalOutput').scrollIntoView({behavior: 'smooth'});
+                        };
+                        container.appendChild(el);
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Gagal mengambil sejarah. Pastikan App Script menyokong action: 'HISTORY'.");
+            }
+            btn.innerText = "🗂️ Lihat Sejarah Laporan"; btn.disabled = false;
         }
     </script>
 </body>
