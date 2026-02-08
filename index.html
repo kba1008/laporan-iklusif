@@ -61,7 +61,7 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase ml-1">Gambar Aktiviti (Max 4)</label>
+                <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase ml-1">Gambar Aktiviti (Auto Grid)</label>
                 <div class="flex gap-3">
                     <label class="flex-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl border-2 border-dashed border-indigo-200 text-center transition-all active:scale-95">
                         <div class="text-2xl mb-1">📸</div>
@@ -146,19 +146,22 @@
 
         function handleImageUpload(input) {
             const files = Array.from(input.files);
-            if (uploadedImages.length + files.length > 4) return alert("Maksimum 4 gambar sahaja.");
             
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    uploadedImages.push(e.target.result);
-                    const div = document.createElement('div');
-                    div.className = "image-preview flex-shrink-0";
-                    div.innerHTML = `
-                        <img src="${e.target.result}" class="h-20 w-20 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
-                        <span class="remove-img" onclick="removeImage(this, '${e.target.result}')">×</span>
-                    `;
-                    document.getElementById('imagePreviewContainer').appendChild(div);
+                    const imgObj = new Image();
+                    imgObj.src = e.target.result;
+                    imgObj.onload = () => {
+                        uploadedImages.push({ src: e.target.result, w: imgObj.width, h: imgObj.height });
+                        const div = document.createElement('div');
+                        div.className = "image-preview flex-shrink-0";
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="h-20 w-20 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
+                            <span class="remove-img" onclick="removeImage(this, '${e.target.result}')">×</span>
+                        `;
+                        document.getElementById('imagePreviewContainer').appendChild(div);
+                    };
                 };
                 reader.readAsDataURL(file);
             });
@@ -166,7 +169,7 @@
         }
 
         function removeImage(btn, src) {
-            uploadedImages = uploadedImages.filter(img => img !== src);
+            uploadedImages = uploadedImages.filter(img => img.src !== src);
             btn.parentElement.remove();
         }
 
@@ -222,6 +225,10 @@
         async function saveAsPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
+            
+            // Set font to normal to avoid bold text
+            doc.setFont("helvetica", "normal");
+
             const text = document.getElementById('finalOutput').value;
             const splitText = doc.splitTextToSize(text, 170);
             
@@ -230,11 +237,48 @@
             
             if (uploadedImages.length > 0) {
                 doc.addPage();
-                let y = 20;
-                uploadedImages.forEach((img, index) => {
-                    if (y > 220) { doc.addPage(); y = 20; }
-                    doc.addImage(img, 'JPEG', 25, y, 160, 90);
-                    y += 100;
+                
+                const count = uploadedImages.length;
+                const margin = 10;
+                const pageW = 210;
+                const pageH = 297;
+                const availW = pageW - (margin * 2);
+                const availH = pageH - (margin * 2);
+                
+                // Auto Grid Calculation
+                let cols = Math.ceil(Math.sqrt(count));
+                let rows = Math.ceil(count / cols);
+                
+                // Optimization for small counts
+                if (count === 2) { cols = 1; rows = 2; }
+                
+                const cellW = availW / cols;
+                const cellH = availH / rows;
+                
+                uploadedImages.forEach((imgObj, index) => {
+                    const c = index % cols;
+                    const r = Math.floor(index / cols);
+                    
+                    const cellX = margin + (c * cellW);
+                    const cellY = margin + (r * cellH);
+                    
+                    // Fit image in cell preserving aspect ratio
+                    const imgRatio = imgObj.w / imgObj.h;
+                    const cellRatio = cellW / cellH;
+                    
+                    let w, h;
+                    if (imgRatio > cellRatio) {
+                        w = cellW - 4; 
+                        h = w / imgRatio;
+                    } else {
+                        h = cellH - 4;
+                        w = h * imgRatio;
+                    }
+                    
+                    const x = cellX + (cellW - w) / 2;
+                    const y = cellY + (cellH - h) / 2;
+                    
+                    doc.addImage(imgObj.src, 'JPEG', x, y, w, h);
                 });
             }
             doc.save(`Laporan_${Date.now()}.pdf`);
