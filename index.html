@@ -3,346 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penjana Laporan AI</title>
-    
+    <title>Sistem Laporan AI Pro - Format Jadual</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f46e5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055644.png">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
-        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .image-preview { position: relative; display: inline-block; }
-        .remove-img { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .scroll-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-12">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-        <div class="bg-indigo-700 p-6 text-white text-center">
-            <h1 class="text-2xl font-bold tracking-tight">Penjana Laporan AI 🤖</h1>
-            <p class="text-indigo-100 text-xs mt-1 opacity-80">Sistem Penjanaan Laporan Pelbagai Guna & Sejarah Cloud</p>
+    <div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-blue-800 p-10 text-white text-center">
+            <h1 class="text-3xl font-medium uppercase tracking-widest">Sistem Laporan AI Berjadual</h1>
+            <p class="text-blue-100 mt-2">Format Profesional | Bahasa Melayu Malaysia | Pengurusan Gambar A4</p>
         </div>
 
-        <div class="p-6 space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Jenis Laporan</label>
-                    <select id="reportType" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                        <option value="Laporan Program Pendidikan Inklusif">Laporan Inklusif</option>
-                        <option value="Laporan Aktiviti Kokurikulum">Laporan Kokurikulum</option>
-                        <option value="Laporan Dokumentasi Program">Laporan Dokumentasi</option>
+        <div class="p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-full">
+                    <label class="block text-sm font-medium text-gray-600 mb-2">Pilih Kategori Laporan</label>
+                    <select id="reportType" class="w-full p-4 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="LAPORAN INKLUSIF">Laporan Program Pendidikan Inklusif (PPI)</option>
+                        <option value="LAPORAN KOKURIKULUM">Laporan Aktiviti Kokurikulum & Sukan</option>
+                        <option value="LAPORAN DOKUMENTASI">Laporan Dokumentasi & Acara Sekolah</option>
                     </select>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Mata Pelajaran / Program</label>
-                    <input type="text" id="subject" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Contoh: P.Jasmani / Sambutan Hari Guru">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Nama Guru</label>
-                    <input type="text" id="teacher" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Nama Anda">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Bilangan Murid</label>
-                    <input type="number" id="studentCount" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="0">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Tarikh Aktiviti</label>
-                    <input type="date" id="reportDate" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                </div>
+
+                <input type="text" id="subject" class="p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Tajuk Program">
+                <input type="text" id="teacher" class="p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Nama Guru Penyedia">
+                <input type="number" id="studentCount" class="p-4 border rounded-xl bg-gray-50 outline-none" placeholder="Jumlah Peserta">
+                <input type="date" id="reportDate" class="p-4 border rounded-xl bg-gray-50 outline-none">
             </div>
 
-            <div>
-                <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase ml-1">Gambar Aktiviti (Auto Grid)</label>
-                <div class="flex gap-3">
-                    <label class="flex-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl border-2 border-dashed border-indigo-200 text-center transition-all active:scale-95">
-                        <div class="text-2xl mb-1">📸</div>
-                        <div class="text-[10px] font-bold text-indigo-700 uppercase">Kamera</div>
-                        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(this)">
-                    </label>
-                    <label class="flex-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl border-2 border-dashed border-indigo-200 text-center transition-all active:scale-95">
-                        <div class="text-2xl mb-1">🖼️</div>
-                        <div class="text-[10px] font-bold text-indigo-700 uppercase">Galeri</div>
-                        <input type="file" accept="image/*" multiple class="hidden" onchange="handleImageUpload(this)">
+            <div class="space-y-4">
+                <label class="block text-sm font-medium text-gray-600 uppercase">Muat Naik Gambar (1 - 10 Gambar)</label>
+                <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100">
+                        <span class="text-gray-500 text-sm">Klik untuk pilih gambar</span>
+                        <input type="file" accept="image/*" multiple class="hidden" onchange="handleImages(this)">
                     </label>
                 </div>
-                <div id="imagePreviewContainer" class="flex gap-3 mt-4 overflow-x-auto p-2 scroll-hide min-h-[90px]">
-                    </div>
+                <div id="previewArea" class="flex gap-4 overflow-x-auto py-4 scroll-hide"></div>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Nota Ringkas Aktiviti</label>
-                <textarea id="activityNotes" rows="4" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ceritakan apa yang berlaku semasa aktiviti..."></textarea>
-            </div>
+            <textarea id="notes" rows="5" class="w-full p-5 border rounded-2xl bg-gray-50 outline-none" placeholder="Sila berikan butiran ringkas atau kronologi aktiviti..."></textarea>
 
-            <button onclick="generateAIReport()" id="btnGenerate" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 transition-all active:scale-[0.98]">
-                <span>✨ Jana Laporan AI</span>
-            </button>
+            <button onclick="generateReport()" id="btnAction" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-semibold shadow-lg hover:bg-blue-800 transition-all">Jana Laporan Dalam Satu Baris Sheet</button>
 
-            <div id="loadingState" class="hidden text-center py-4 bg-indigo-50 rounded-xl border border-indigo-100 animate-pulse">
-                <div class="flex items-center justify-center gap-3 mb-2">
-                    <div class="loader"></div>
-                    <span class="text-indigo-700 font-bold text-sm tracking-wide">AI Sedang Menulis...</span>
-                </div>
-                <div id="switchStatus" class="text-[10px] text-orange-600 font-mono italic">Mencari model terbaik...</div>
+            <div id="loading" class="hidden flex flex-col items-center py-6">
+                <div class="loader"></div>
+                <p id="status" class="text-blue-700 text-sm mt-4 font-medium italic">AI sedang merangka laporan (250-300 patah perkataan)...</p>
             </div>
         </div>
 
-        <div id="resultSection" class="hidden border-t bg-gray-50 p-6 space-y-4">
-            <div class="flex justify-between items-center">
-                <label class="text-xs font-bold text-gray-500 uppercase">Hasil Penjanaan AI:</label>
-                <span class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-md font-bold">SIAP</span>
+        <div id="resultArea" class="hidden border-t p-10 bg-slate-50 space-y-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-700">Pratinjau Laporan Jadual</h3>
             </div>
-            <textarea id="finalOutput" rows="10" class="w-full p-4 border rounded-xl text-sm leading-relaxed shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"></textarea>
-            <div class="flex gap-3">
-                <button onclick="saveAsPDF()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all shadow-md active:scale-95">📄 Simpan PDF</button>
-                <button onclick="saveToCloud()" id="btnCloud" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all shadow-md active:scale-95">☁️ Simpan Cloud</button>
+            <textarea id="output" rows="18" class="w-full p-6 border rounded-2xl bg-white text-sm leading-relaxed shadow-sm font-mono"></textarea>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="downloadPDF()" class="bg-red-700 text-white py-4 rounded-xl shadow-md hover:bg-red-800">Cetak PDF (Format A4)</button>
+                <button onclick="saveToCloud()" id="btnSave" class="bg-green-700 text-white py-4 rounded-xl shadow-md hover:bg-green-800">Simpan Ke Google Sheet</button>
             </div>
         </div>
 
-        <div class="border-t p-6 bg-white">
-            <button onclick="loadHistory()" id="btnHistory" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl flex justify-center items-center gap-2 transition-all">
-                <span>🗂️ Lihat Sejarah Laporan</span>
-            </button>
-            <div id="historyContainer" class="mt-4 hidden space-y-3 max-h-64 overflow-y-auto pr-2 scroll-hide">
-                </div>
+        <div class="p-8 border-t bg-white">
+            <button onclick="fetchHistory()" class="w-full py-4 text-gray-500 text-sm border rounded-2xl hover:bg-gray-50">Lihat Rekod Sejarah</button>
+            <div id="historyList" class="mt-6 space-y-4 hidden"></div>
         </div>
     </div>
 
     <script>
         const CONFIG = {
             API_KEY: "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",
-            MODELS: ["llama-3.3-70b-versatile", "llama-3.1-70b-specdec", "mixtral-8x7b-32768", "llama-3.1-8b-instant"],
-            GAS_URL: "https://script.google.com/macros/s/AKfycbz3qlb57bEdTU-WONmJc8qIkdxdYLcueS3kWj0WQHTFEKNgFhVC7K6ki9akhy2O8cUZ/exec"
+            GAS_URL: "URL_GAS_ANDA_DI_SINI",
+            MODELS: ["llama-3.3-70b-versatile", "mixtral-8x7b-32768"]
         };
 
-        let uploadedImages = [];
+        let images = [];
 
-        window.onload = () => { 
-            document.getElementById('reportDate').valueAsDate = new Date(); 
-
-            // PWA Auto Update Registration
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    reg.onupdatefound = () => {
-                        const installingWorker = reg.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                window.location.reload();
-                            }
-                        };
-                    };
-                });
-            }
-        };
-
-        function handleImageUpload(input) {
+        function handleImages(input) {
             const files = Array.from(input.files);
-            
+            if (images.length + files.length > 10) return alert("Maksima 10 gambar sahaja.");
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const imgObj = new Image();
-                    imgObj.src = e.target.result;
-                    imgObj.onload = () => {
-                        uploadedImages.push({ src: e.target.result, w: imgObj.width, h: imgObj.height });
-                        const div = document.createElement('div');
-                        div.className = "image-preview flex-shrink-0";
-                        div.innerHTML = `
-                            <img src="${e.target.result}" class="h-20 w-20 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
-                            <span class="remove-img" onclick="removeImage(this, '${e.target.result}')">×</span>
-                        `;
-                        document.getElementById('imagePreviewContainer').appendChild(div);
-                    };
+                    images.push({ src: e.target.result, name: file.name });
+                    renderPreviews();
                 };
                 reader.readAsDataURL(file);
             });
-            input.value = "";
         }
 
-        function removeImage(btn, src) {
-            uploadedImages = uploadedImages.filter(img => img.src !== src);
-            btn.parentElement.remove();
+        function renderPreviews() {
+            const container = document.getElementById('previewArea');
+            container.innerHTML = images.map((img, i) => `
+                <div class="relative flex-shrink-0">
+                    <img src="${img.src}" class="w-28 h-28 object-cover rounded-xl border-2 border-white shadow-md">
+                    <button class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-lg" onclick="images.splice(${i},1);renderPreviews()">×</button>
+                </div>
+            `).join('');
         }
 
-        async function generateAIReport() {
-            const notes = document.getElementById('activityNotes').value;
-            const reportType = document.getElementById('reportType').value;
+        async function generateReport() {
+            if(images.length < 1) return alert("Sila masukkan minima 1 gambar.");
+            const type = document.getElementById('reportType').value;
+            const note = document.getElementById('notes').value;
             
-            if (!notes) return alert("Sila isi nota aktiviti!");
-            if (uploadedImages.length === 0) return alert("Sila ambil atau upload gambar!");
+            document.getElementById('btnAction').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
 
-            const btn = document.getElementById('btnGenerate');
-            const loader = document.getElementById('loadingState');
-            const switchLabel = document.getElementById('switchStatus');
-            const resultSection = document.getElementById('resultSection');
-
-            btn.classList.add('hidden');
-            loader.classList.remove('hidden');
-            resultSection.classList.add('hidden');
-
-            const prompt = `Hasilkan ${reportType} rasmi dalam Bahasa Melayu.\n
-            Mata Pelajaran / Program: ${document.getElementById('subject').value}\n
-            Guru: ${document.getElementById('teacher').value}\n
-            Bilangan Murid: ${document.getElementById('studentCount').value}\n
-            Tarikh: ${document.getElementById('reportDate').value}\n
-            Aktiviti: ${notes}\n
-            Format: Tajuk, Ringkasan, Pemerhatian, Impak, Penutup.`;
+            const systemPrompt = `Anda adalah pegawai penyedia laporan profesional. Tulis laporan dalam Bahasa Melayu Malaysia yang formal. 
+            Gunakan format JADUAL MARKDOWN dengan dua kolum: ASPEK Laporan dan BUTIRAN Terperinci. 
+            Jumlah perkataan mesti antara 250 hingga 300 patah perkataan. 
+            Jangan gunakan sebarang simbol bold (asterisk).
+            Struktur laporan mengikut jenis: ${type}.
+            Data Input: Tajuk: ${document.getElementById('subject').value}, Guru: ${document.getElementById('teacher').value}, Peserta: ${document.getElementById('studentCount').value}, Tarikh: ${document.getElementById('reportDate').value}, Nota: ${note}`;
 
             let success = false;
-
             for (const model of CONFIG.MODELS) {
-                switchLabel.innerText = `Menghubungi: ${model}...`;
                 try {
-                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
                         headers: { "Authorization": `Bearer ${CONFIG.API_KEY}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }], temperature: 0.7 })
+                        body: JSON.stringify({ model: model, messages: [{ role: "user", content: systemPrompt }] })
                     });
-                    const data = await response.json();
-                    if (response.ok && data.choices) {
-                        document.getElementById('finalOutput').value = data.choices[0].message.content;
-                        resultSection.classList.remove('hidden');
-                        success = true;
-                        break;
+                    const data = await resp.json();
+                    if(data.choices) {
+                        document.getElementById('output').value = data.choices[0].message.content;
+                        document.getElementById('resultArea').classList.remove('hidden');
+                        success = true; break;
                     }
-                } catch (e) { console.error(`Model ${model} gagal.`); }
+                } catch (e) {}
             }
-
-            if (!success) alert("Maaf, semua sistem AI sedang sibuk.");
-            btn.classList.remove('hidden');
-            loader.classList.add('hidden');
+            if(!success) alert("Ralat model AI.");
+            document.getElementById('btnAction').classList.remove('hidden');
+            document.getElementById('loading').classList.add('hidden');
         }
 
-        async function saveAsPDF() {
+        function downloadPDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF('p', 'mm', 'a4');
             
-            // Set font to normal to avoid bold text
-            doc.setFont("helvetica", "normal");
+            // MUKA SURAT 1: JADUAL
+            doc.setFontSize(16);
+            doc.text(document.getElementById('reportType').value, 105, 20, null, null, "center");
+            
+            const content = document.getElementById('output').value;
+            doc.setFontSize(10);
+            const lines = doc.splitTextToSize(content, 160); // Margin kiri kanan seimbang
+            doc.text(lines, 25, 40);
 
-            const text = document.getElementById('finalOutput').value;
-            const splitText = doc.splitTextToSize(text, 170);
-            
-            doc.setFontSize(14); doc.text("LAPORAN RASMI", 105, 20, null, null, "center");
-            doc.setFontSize(10); doc.text(splitText, 20, 40);
-            
-            if (uploadedImages.length > 0) {
+            // MUKA SURAT 2: GAMBAR (OPTIMAL GRID)
+            if(images.length > 0) {
                 doc.addPage();
+                doc.text("LAMPIRAN GAMBAR AKTIVITI", 105, 15, null, null, "center");
                 
-                const count = uploadedImages.length;
-                const margin = 10;
-                const pageW = 210;
-                const pageH = 297;
-                const availW = pageW - (margin * 2);
-                const availH = pageH - (margin * 2);
-                
-                // Auto Grid Calculation
-                let cols = Math.ceil(Math.sqrt(count));
-                let rows = Math.ceil(count / cols);
-                
-                // Optimization for small counts
-                if (count === 2) { cols = 1; rows = 2; }
-                
-                const cellW = availW / cols;
-                const cellH = availH / rows;
-                
-                uploadedImages.forEach((imgObj, index) => {
-                    const c = index % cols;
-                    const r = Math.floor(index / cols);
-                    
-                    const cellX = margin + (c * cellW);
-                    const cellY = margin + (r * cellH);
-                    
-                    // Fit image in cell preserving aspect ratio
-                    const imgRatio = imgObj.w / imgObj.h;
-                    const cellRatio = cellW / cellH;
-                    
-                    let w, h;
-                    if (imgRatio > cellRatio) {
-                        w = cellW - 4; 
-                        h = w / imgRatio;
-                    } else {
-                        h = cellH - 4;
-                        w = h * imgRatio;
-                    }
-                    
-                    const x = cellX + (cellW - w) / 2;
-                    const y = cellY + (cellH - h) / 2;
-                    
-                    doc.addImage(imgObj.src, 'JPEG', x, y, w, h);
+                let x = 15, y = 25;
+                let imgW = 85, imgH = 50; // Saiz dioptimumkan untuk muat 10 gambar (5 baris x 2 kolum)
+
+                images.forEach((img, i) => {
+                    if (i > 0 && i % 2 === 0) { x = 15; y += 55; }
+                    doc.addImage(img.src, 'JPEG', x, y, imgW, imgH);
+                    x += 95;
                 });
             }
-            doc.save(`Laporan_${Date.now()}.pdf`);
+            doc.save("Laporan_Berjadual_Pro.pdf");
         }
 
         async function saveToCloud() {
-            const btn = document.getElementById('btnCloud');
-            btn.innerText = "Menyimpan..."; btn.disabled = true;
-            
+            const btn = document.getElementById('btnSave');
+            btn.innerText = "Sedang Menyimpan...";
             const payload = {
                 action: "MASUK",
                 passcode: "101010",
                 nama: document.getElementById('teacher').value,
-                kategori: "PELAWAT",
-                tujuan: "LAPORAN AI: " + document.getElementById('subject').value,
-                fullReport: document.getElementById('finalOutput').value
+                type: document.getElementById('reportType').value,
+                tujuan: document.getElementById('subject').value,
+                report: document.getElementById('output').value,
+                images: images.map(img => ({ data: img.src.split(',')[1], name: img.name }))
             };
-
             try {
-                await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-                alert("✅ Laporan Berjaya Disimpan ke Cloud!");
-            } catch (e) { alert("❌ Ralat Cloud."); }
-            
-            btn.innerText = "☁️ Simpan Cloud"; btn.disabled = false;
+                const res = await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                alert("Berjaya disimpan dalam satu baris Sheet!");
+            } catch (e) { alert("Gagal Cloud."); }
+            btn.innerText = "Simpan Ke Google Sheet";
         }
 
-        async function loadHistory() {
-            const btn = document.getElementById('btnHistory');
-            const container = document.getElementById('historyContainer');
-            btn.innerText = "Mengambil Rekod..."; btn.disabled = true;
-            container.innerHTML = "";
-            
+        async function fetchHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = "Memuatkan rekod...";
+            list.classList.remove('hidden');
             try {
-                const response = await fetch(CONFIG.GAS_URL, { 
-                    method: "POST", 
-                    body: JSON.stringify({ action: "HISTORY", passcode: "101010" }) 
-                });
-                const data = await response.json();
-                const records = Array.isArray(data) ? data : (data.records || []);
-                
-                if (records.length === 0) {
-                    alert("Tiada sejarah ditemui.");
-                } else {
-                    container.classList.remove("hidden");
-                    records.reverse().forEach(rec => {
-                        const el = document.createElement("div");
-                        el.className = "p-3 bg-gray-50 border rounded-xl cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-sm";
-                        el.innerHTML = `
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-bold text-gray-400 uppercase">${rec.date || rec.tarikh || ''}</span>
-                                <span class="text-[8px] bg-indigo-600 text-white px-2 py-0.5 rounded">REKOD</span>
-                            </div>
-                            <div class="font-bold text-sm text-gray-800 truncate">${rec.tujuan || rec.subject || 'Laporan Tanpa Tajuk'}</div>
-                        `;
-                        el.onclick = () => {
-                            document.getElementById('finalOutput').value = rec.fullReport || rec.laporan || "";
-                            document.getElementById('resultSection').classList.remove('hidden');
-                            document.getElementById('resultSection').scrollIntoView({behavior: 'smooth'});
-                        };
-                        container.appendChild(el);
-                    });
-                }
-            } catch (e) { alert("Gagal memuat sejarah."); }
-            btn.innerText = "🗂️ Lihat Sejarah Laporan"; btn.disabled = false;
+                const resp = await fetch(CONFIG.GAS_URL, { method: "POST", body: JSON.stringify({ action: "HISTORY", passcode: "101010" }) });
+                const data = await resp.json();
+                list.innerHTML = data.reverse().map(rec => `
+                    <div class="p-5 bg-gray-50 border rounded-2xl cursor-pointer hover:border-blue-500 transition-all" onclick="restore('${rec.report.replace(/'/g, "\\'")}')">
+                        <div class="flex justify-between text-[10px] text-gray-400 mb-2"><span>${rec.date}</span><span>${rec.type}</span></div>
+                        <div class="font-medium text-gray-800">${rec.tujuan}</div>
+                        <div class="text-[9px] text-blue-600 mt-2 truncate">Pautan Arkib: ${rec.links}</div>
+                    </div>
+                `).join('');
+            } catch (e) { list.innerHTML = "Ralat memuat data."; }
+        }
+
+        function restore(txt) {
+            document.getElementById('output').value = txt;
+            document.getElementById('resultArea').classList.remove('hidden');
+            document.getElementById('resultArea').scrollIntoView();
         }
     </script>
 </body>
