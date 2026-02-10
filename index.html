@@ -404,7 +404,16 @@
             document.getElementById('output').value = rec.report;
             
             // 3. Pulihkan Gambar (Visual)
-            images = (rec.imgCols || []).filter(link => link).map(link => ({ src: link, name: "History Image" }));
+            // FIX: Pastikan URL Google Drive ditukar kepada format yang boleh dipapar dalam tag img
+            images = (rec.imgCols || []).filter(link => link).map(link => {
+                let url = link;
+                // Jika URL adalah Google Drive View Link, tukar ke Export View ID untuk paparan
+                const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (driveMatch && url.includes('drive.google.com')) {
+                    url = `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+                }
+                return { src: url, name: "History Image" };
+            });
             renderPreviews();
             
             // 4. Paparan
