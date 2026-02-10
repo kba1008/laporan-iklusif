@@ -175,6 +175,13 @@
                 };
                 reader.readAsDataURL(file);
             });
+            // FIX: Reset nilai input supaya boleh pilih gambar sama/lain semula tanpa sekatan
+            input.value = '';
+        }
+
+        function removeImage(index) {
+            images.splice(index, 1);
+            renderPreviews();
         }
 
         function renderPreviews() {
@@ -182,7 +189,8 @@
             container.innerHTML = images.map((img, i) => `
                 <div class="relative flex-shrink-0 group">
                     <img src="${img.src}" class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm">
-                    <button class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" onclick="images.splice(${i},1);renderPreviews()">×</button>
+                    <!-- FIX: Butang padam sentiasa kelihatan (buang opacity-0) -->
+                    <button class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center shadow-md z-10" onclick="removeImage(${i})">×</button>
                 </div>
             `).join('');
         }
