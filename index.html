@@ -45,7 +45,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="label-text">Nama Program / Unit / Subjek</label>
-                            <input type="text" id="subject" class="input-field" placeholder="Cth: Bola Jaring / Minggu Bahasa">
+                            <input type="text" id="subject" class="input-field" placeholder="Cth: Bola Jaring / Minggu Bahasa" oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div>
                             <label class="label-text">Tarikh & Masa</label>
@@ -57,25 +57,25 @@
 
                         <div>
                             <label class="label-text">Guru Utama (Pelapor)</label>
-                            <input type="text" id="teacher" class="input-field" placeholder="Nama Anda">
+                            <input type="text" id="teacher" class="input-field" placeholder="Nama Anda" oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div>
                             <label class="label-text">Guru Pembantu (Jika Ada)</label>
-                            <input type="text" id="assistant" class="input-field" placeholder="Optional">
+                            <input type="text" id="assistant" class="input-field" placeholder="Optional" oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <div>
                             <label class="label-text">Bilangan Peserta / Kehadiran</label>
-                            <input type="text" id="studentCount" class="input-field" placeholder="Cth: 30 Orang">
+                            <input type="text" id="studentCount" class="input-field" placeholder="Cth: 30 Orang" oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div>
                             <label class="label-text">Lokasi / Tempat</label>
-                            <input type="text" id="location" class="input-field" placeholder="Cth: Dewan / Padang">
+                            <input type="text" id="location" class="input-field" placeholder="Cth: Dewan / Padang" oninput="this.value = this.value.toUpperCase()">
                         </div>
                         
                         <div class="col-span-full">
                             <label class="label-text">Kumpulan Sasaran (Kelas/Tahun)</label>
-                            <input type="text" id="targetGroup" class="input-field" placeholder="Cth: Semua Murid Tahun 6">
+                            <input type="text" id="targetGroup" class="input-field" placeholder="Cth: Semua Murid Tahun 6" oninput="this.value = this.value.toUpperCase()">
                         </div>
                     </div>
                 </div>
@@ -199,16 +199,16 @@
         }
 
         async function generateAndSave() {
-            // Ambil semua data (walaupun kosong)
+            // Ambil data tanpa default (kosong jika tidak diisi)
             const type = document.getElementById('reportType').value;
-            const subject = document.getElementById('subject').value || "[Nama Program Tidak Dinyatakan]";
+            const subject = document.getElementById('subject').value;
             const date = document.getElementById('reportDate').value || new Date().toISOString().split('T')[0];
             const time = document.getElementById('reportTime').value || "08:00";
-            const teacher = document.getElementById('teacher').value || "[Nama Guru]";
-            const assistant = document.getElementById('assistant').value || "-";
-            const studentCount = document.getElementById('studentCount').value || "Tidak dinyatakan";
-            const location = document.getElementById('location').value || "Kawasan Sekolah";
-            const targetGroup = document.getElementById('targetGroup').value || "Murid Sekolah";
+            const teacher = document.getElementById('teacher').value;
+            const assistant = document.getElementById('assistant').value;
+            const studentCount = document.getElementById('studentCount').value;
+            const location = document.getElementById('location').value;
+            const targetGroup = document.getElementById('targetGroup').value;
             const notes = document.getElementById('notes').value;
 
             // Hanya nota dan sekurang-kurangnya 1 gambar wajib untuk konteks AI
@@ -218,32 +218,26 @@
             document.getElementById('loading').classList.remove('hidden');
 
             let systemPrompt = "";
+            const instructions = "Gunakan gaya bahasa santai dan natural, elakkan bahasa robotik. Panjang laporan MESTI antara 300 hingga 350 patah perkataan. JANGAN gunakan garisan pemisah panjang seperti '-----' atau '===='. Gunakan jarak perenggan yang kemas sahaja.";
+            
+            // Helper untuk memaparkan baris hanya jika ada data
+            const ln = (label, val) => val ? `- ${label.padEnd(20)}: ${val}\n` : "";
+            const rw = (label, val) => val ? `${label.padEnd(20)}: ${val}\n` : "";
 
             // --- LOGIK AI MENGIKUT JENIS LAPORAN ---
-            const instructions = "Gunakan gaya bahasa santai dan natural, elakkan bahasa robotik. Panjang laporan MESTI antara 300 hingga 350 patah perkataan. JANGAN gunakan garisan pemisah panjang seperti '-----' atau '===='. Gunakan jarak perenggan yang kemas sahaja.";
-
             if (type === "LAPORAN DOKUMENTASI") {
                 // FORMAT BARU: DOKUMENTASI (AI EXPANDED)
                 systemPrompt = `Anda adalah pembantu dokumentasi sekolah profesional. ${instructions}
                 
                 DATA PENGGUNA:
-                Tajuk: ${subject}, Tarikh: ${date}, Masa: ${time}, Lokasi: ${location}, Sasaran: ${targetGroup}, Peserta: ${studentCount}
-                Guru Utama: ${teacher}, Pembantu: ${assistant}
+                Tajuk: ${subject}, Tarikh: ${date}, Masa: ${time}, Lokasi: ${location}
                 POIN AKTIVITI (Sila kembangkan): ${notes}
 
                 --- FORMAT MULA ---
                 LAPORAN AKTIVITI [NAMA UNIT/PROGRAM]
 
                 [1. MAKLUMAT ASAS] 
-                - Nama Program/Unit : ${subject}
-                - Tarikh            : ${date}
-                - Masa              : ${time}
-                - Lokasi            : ${location}
-                - Kumpulan Sasaran  : ${targetGroup}
-                - Bilangan Peserta  : ${studentCount}
-                - Guru Utama        : ${teacher}
-                - Guru Pembantu     : ${assistant}
-
+                ${ln("Nama Program/Unit", subject)}${ln("Tarikh", date)}${ln("Masa", time)}${ln("Lokasi", location)}${ln("Kumpulan Sasaran", targetGroup)}${ln("Bilangan Peserta", studentCount)}${ln("Guru Utama", teacher)}${ln("Guru Pembantu", assistant)}
                 [2. RINGKASAN AKTIVITI (AI-EXPANDED)]
                 - FASA AWAL: [Tulis satu perenggan lengkap tentang permulaan/pemanasan badan berdasarkan poin '${notes}'].
                 - FASA UTAMA: [Kembangkan aktiviti utama dengan terperinci dan ayat gramatis. Masukkan unsur teknikal jika perlu].
@@ -259,20 +253,14 @@
             } else if (type === "LAPORAN INKLUSIF") {
                 // FORMAT PPI (DIKEMASKINI: SUSUNAN KHAS)
                 systemPrompt = `Tulis Laporan Pendidikan Inklusif. ${instructions}
-                Data: Subjek: ${subject}, Guru Pembimbing: ${teacher}, Guru MP: ${assistant}, Kelas Perdana: ${targetGroup}, Kelas PPKI (Lokasi): ${location}, Murid: ${studentCount}, Tarikh: ${date}, Masa: ${time}, Nota: ${notes}
+                Data: Subjek: ${subject}, Tarikh: ${date}, Nota: ${notes}
 
                 --- FORMAT MULA ---
                 LAPORAN PELAKSANAAN PROGRAM PENDIDIKAN INKLUSIF
 
                 MAKLUMAT ASAS
                 TARIKH DAN MASA      : ${date} / ${time}
-                SUBJEK               : ${subject}
-                KELAS PERDANA        : ${targetGroup}
-                GURU MATA PELAJARAN  : ${assistant}
-                KELAS PPKI           : ${location}
-                GURU PEMBIMBING PPKI : ${teacher}
-                BILANGAN MURID       : ${studentCount}
-
+                ${rw("SUBJEK", subject)}${rw("KELAS PERDANA", targetGroup)}${rw("GURU MATA PELAJARAN", assistant)}${rw("KELAS PPKI", location)}${rw("GURU PEMBIMBING PPKI", teacher)}${rw("BILANGAN MURID", studentCount)}
                 LAPORAN AKTIVITI
                 [Kembangkan poin '${notes}' menjadi laporan aktiviti yang lengkap merangkumi pengenalan, perkembangan dan penutup dalam 2-3 perenggan].
 
@@ -284,26 +272,22 @@
                 Disediakan oleh,
                 
                 ..........................................
-                (${teacher})
-                Guru Pembimbing PPKI
+                ${teacher ? '('+teacher+')' : ''}
+                ${teacher ? 'Guru Pembimbing PPKI' : ''}
                 --- FORMAT TAMAT ---`;
 
             } else {
                 // FORMAT KOKURIKULUM (LAMA TAPI PADU)
                 systemPrompt = `Tulis Laporan Aktiviti Kokurikulum Mingguan. ${instructions}
-                Data: Unit: ${subject}, Guru: ${teacher}, Kehadiran: ${studentCount}, Tarikh: ${date}, Masa: ${time}, Tempat: ${location}, Nota: ${notes}
+                Data: Unit: ${subject}, Tarikh: ${date}, Nota: ${notes}
 
                 --- FORMAT MULA ---
                 LAPORAN AKTIVITI MINGGUAN KOKURIKULUM
 
                 1. MAKLUMAT ASAS
-                Unit Kokurikulum    : ${subject}
-                Tarikh / Hari       : ${date}
+                ${rw("Unit Kokurikulum", subject)}Tarikh / Hari       : ${date}
                 Masa                : ${time}
-                Tempat              : ${location}
-                Kehadiran Murid     : ${studentCount}
-                Kehadiran Guru      : ${teacher}
-
+                ${rw("Tempat", location)}${rw("Kehadiran Murid", studentCount)}${rw("Kehadiran Guru", teacher)}
                 2. OBJEKTIF AKTIVITI
                 * [Jana 3 objektif sesuai dengan aktiviti '${notes}']
 
@@ -330,7 +314,7 @@
                 Disediakan oleh:
                 
                 (Tandatangan Guru Penasihat)
-                Nama: ${teacher}
+                ${teacher ? 'Nama: ' + teacher : ''}
                 --- FORMAT TAMAT ---`;
             }
 
@@ -409,11 +393,26 @@
         }
 
         function restore(idx) {
-            document.getElementById('output').value = historyData[idx].report;
-            images = []; 
+            const rec = historyData[idx];
+            
+            // 1. Pulihkan Input (untuk tujuan edit PDF/Generate semula)
+            document.getElementById('subject').value = rec.tujuan || "";
+            document.getElementById('teacher').value = rec.nama || "";
+            if(rec.type) document.getElementById('reportType').value = rec.type;
+            
+            // 2. Pulihkan Teks Laporan
+            document.getElementById('output').value = rec.report;
+            
+            // 3. Pulihkan Gambar (Visual)
+            images = (rec.imgCols || []).filter(link => link).map(link => ({ src: link, name: "History Image" }));
             renderPreviews();
+            
+            // 4. Paparan
             document.getElementById('resultArea').classList.remove('hidden');
-            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+            // FIX: Scroll ke atas untuk memastikan gambar kelihatan
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            alert("Rekod dipulihkan. Anda boleh semak gambar di atas dan laporan di bawah.");
         }
 
         function copyToClipboard() {
@@ -558,10 +557,10 @@
 
             if (navigator.share) {
                 try {
-                    await navigator.share({
-                        files: [file],
-                        title: title,
-                        text: 'Berikut adalah laporan aktiviti sekolah yang telah dijana.'
+                    await navigator.share({ 
+                        files: [file], 
+                        title: title, 
+                        text: 'Berikut adalah laporan aktiviti sekolah yang telah dijana.' 
                     });
                 } catch (error) {
                     console.log('Error sharing:', error);
