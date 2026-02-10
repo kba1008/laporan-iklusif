@@ -497,7 +497,10 @@
                     doc.addImage(img.src, 'JPEG', offsetX, offsetY, drawW, drawH);
                 });
             }
-            doc.save(`Laporan_${Date.now()}.pdf`);
+            
+            const fName = (document.getElementById('subject').value || "Laporan").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
+            const fTime = (document.getElementById('reportTime').value || "").replace(":", "");
+            doc.save(`${fName}_${fTime}.pdf`);
         }
 
         async function sharePDF() {
@@ -545,9 +548,13 @@
                     doc.addImage(img.src, 'JPEG', offsetX, offsetY, drawW, drawH);
                 });
             }
+            
+            const fName = (document.getElementById('subject').value || "Laporan").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
+            const fTime = (document.getElementById('reportTime').value || "").replace(":", "");
+            const fileName = `${fName}_${fTime}.pdf`;
 
             const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], "Laporan_Sekolah.pdf", { type: "application/pdf" });
+            const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.share) {
                 try {
