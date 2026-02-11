@@ -328,16 +328,7 @@
                         temperature: 0.65 
                     })
                 });
-                
-                // FIX: Semak jika respons gagal (selain 200 OK)
-                if (!resp.ok) {
-                    const errData = await resp.json();
-                    throw new Error(errData.error?.message || "Ralat API: " + resp.status);
-                }
-
                 const data = await resp.json();
-                if (!data.choices || !data.choices[0]) throw new Error("Tiada respons dari AI.");
-
                 const successReport = data.choices[0].message.content;
 
                 document.getElementById('output').value = successReport;
@@ -349,8 +340,7 @@
                 fetchHistory();
 
             } catch (e) {
-                console.error(e);
-                alert("Ralat: " + e.message + "\n(Sila semak sambungan internet atau API KEY)");
+                alert("Ralat: Sila pastikan internet stabil.");
             }
 
             document.getElementById('btnAction').classList.remove('hidden');
@@ -403,35 +393,11 @@
         }
 
         function restore(idx) {
-            const rec = historyData[idx];
-            
-            // 1. Pulihkan Input (untuk tujuan edit PDF/Generate semula)
-            document.getElementById('subject').value = rec.tujuan || "";
-            document.getElementById('teacher').value = rec.nama || "";
-            if(rec.type) document.getElementById('reportType').value = rec.type;
-            
-            // 2. Pulihkan Teks Laporan
-            document.getElementById('output').value = rec.report;
-            
-            // 3. Pulihkan Gambar (Visual)
-            // FIX: Pastikan URL Google Drive ditukar kepada format yang boleh dipapar dalam tag img
-            images = (rec.imgCols || []).filter(link => link).map(link => {
-                let url = link;
-                // Jika URL adalah Google Drive View Link, tukar ke Export View ID untuk paparan
-                const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (driveMatch && url.includes('drive.google.com')) {
-                    url = `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
-                }
-                return { src: url, name: "History Image" };
-            });
+            document.getElementById('output').value = historyData[idx].report;
+            images = []; 
             renderPreviews();
-            
-            // 4. Paparan
             document.getElementById('resultArea').classList.remove('hidden');
-            // FIX: Scroll ke atas untuk memastikan gambar kelihatan
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            alert("Rekod dipulihkan. Anda boleh semak gambar di atas dan laporan di bawah.");
+            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
         }
 
         function copyToClipboard() {
@@ -576,10 +542,10 @@
 
             if (navigator.share) {
                 try {
-                    await navigator.share({ 
-                        files: [file], 
-                        title: title, 
-                        text: 'Berikut adalah laporan aktiviti sekolah yang telah dijana.' 
+                    await navigator.share({
+                        files: [file],
+                        title: title,
+                        text: 'Berikut adalah laporan aktiviti sekolah yang telah dijana.'
                     });
                 } catch (error) {
                     console.log('Error sharing:', error);
