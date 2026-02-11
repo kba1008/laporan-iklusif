@@ -45,7 +45,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="label-text">Nama Program / Unit / Subjek</label>
-                            <input type="text" id="subject" class="input-field" placeholder="Cth: Bola Jaring / Minggu Bahasa" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" id="subject" class="input-field" placeholder="Cth: Bola Jaring / Minggu Bahasa">
                         </div>
                         <div>
                             <label class="label-text">Tarikh & Masa</label>
@@ -57,25 +57,25 @@
 
                         <div>
                             <label class="label-text">Guru Utama (Pelapor)</label>
-                            <input type="text" id="teacher" class="input-field" placeholder="Nama Anda" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" id="teacher" class="input-field" placeholder="Nama Anda">
                         </div>
                         <div>
                             <label class="label-text">Guru Pembantu (Jika Ada)</label>
-                            <input type="text" id="assistant" class="input-field" placeholder="Optional" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" id="assistant" class="input-field" placeholder="Optional">
                         </div>
 
                         <div>
                             <label class="label-text">Bilangan Peserta / Kehadiran</label>
-                            <input type="text" id="studentCount" class="input-field" placeholder="Cth: 30 Orang" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" id="studentCount" class="input-field" placeholder="Cth: 30 Orang">
                         </div>
                         <div>
                             <label class="label-text">Lokasi / Tempat</label>
-                            <input type="text" id="location" class="input-field" placeholder="Cth: Dewan / Padang" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" id="location" class="input-field" placeholder="Cth: Dewan / Padang">
                         </div>
                         
                         <div class="col-span-full">
                             <label class="label-text">Kumpulan Sasaran (Kelas/Tahun)</label>
-                            <input type="text" id="targetGroup" class="input-field" placeholder="Cth: Semua Murid Tahun 6" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" id="targetGroup" class="input-field" placeholder="Cth: Semua Murid Tahun 6">
                         </div>
                     </div>
                 </div>
@@ -127,15 +127,12 @@
             
             <textarea id="output" rows="18" class="w-full p-5 border rounded-xl bg-slate-50 text-sm text-gray-800 outline-none shadow-inner whitespace-pre-wrap resize-none"></textarea>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                  <button onclick="copyToClipboard()" class="bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700">
                     Salin Teks Sahaja
                 </button>
                 <button onclick="downloadPDF()" class="bg-red-700 text-white py-3 rounded-lg font-semibold hover:bg-red-800 shadow-md">
-                    📄 Muat Turun PDF
-                </button>
-                <button onclick="sharePDF()" class="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 shadow-md">
-                    📤 Kongsi PDF
+                    📄 Muat Turun PDF (A4)
                 </button>
             </div>
         </div>
@@ -450,125 +447,21 @@
                 y += 6; // Sedikit jarak lebih luas (Line height)
             });
 
-            // Muka Surat Gambar: Auto susun dalam satu A4 (1-10 gambar)
+            // Muka Surat Gambar
             if(images.length > 0) {
                 doc.addPage();
                 doc.setFont("helvetica", "bold");
                 doc.text("LAMPIRAN BERGAMBAR", 105, 15, null, null, "center");
                 
-                const imgCount = images.length;
-                let cols = 1;
-                // Jika > 2 gambar, guna 2 lajur. Jika 1-2 gambar, kekal 1 lajur (menegak)
-                if (imgCount > 2) cols = 2;
-                
-                const rows = Math.ceil(imgCount / cols);
-                
-                // Kawasan kerja A4: width 190 (margin 10), height 260 (top 25, btm 12)
-                const areaW = 190;
-                const areaH = 260;
-                const gap = 5;
-                
-                const cellW = (areaW - (gap * (cols - 1))) / cols;
-                const cellH = (areaH - (gap * (rows - 1))) / rows;
-                
+                let gx = 15, gy = 25;
                 images.forEach((img, i) => {
-                    // Dapatkan dimensi untuk kekalkan aspect ratio
-                    const props = doc.getImageProperties(img.src);
-                    const ratio = props.width / props.height;
-
-                    const col = i % cols;
-                    const row = Math.floor(i / cols);
-                    
-                    const xBox = 10 + (col * (cellW + gap));
-                    const yBox = 25 + (row * (cellH + gap));
-                    
-                    let drawW = cellW;
-                    let drawH = drawW / ratio;
-                    
-                    if (drawH > cellH) {
-                        drawH = cellH;
-                        drawW = drawH * ratio;
-                    }
-                    
-                    // Center gambar dalam kotak
-                    const offsetX = xBox + (cellW - drawW) / 2;
-                    const offsetY = yBox + (cellH - drawH) / 2;
-                    
-                    doc.addImage(img.src, 'JPEG', offsetX, offsetY, drawW, drawH);
+                    if (i > 0 && i % 2 === 0) { gx = 15; gy += 55; }
+                    if (gy > 250) { doc.addPage(); gy = 25; } 
+                    doc.addImage(img.src, 'JPEG', gx, gy, 85, 50);
+                    gx += 95;
                 });
             }
-            
-            const fName = (document.getElementById('subject').value || "Laporan").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
-            const fTime = (document.getElementById('reportTime').value || "").replace(":", "");
-            doc.save(`${fName}_${fTime}.pdf`);
-        }
-
-        async function sharePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const content = document.getElementById('output').value;
-            const title = document.getElementById('subject').value || "LAPORAN AKTIVITI";
-            
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.text(title.toUpperCase(), 105, 15, null, null, "center");
-            
-            doc.setFont("helvetica", "normal");
-            const lines = doc.splitTextToSize(content, 170);
-            let y = 25;
-            
-            lines.forEach(line => {
-                if (y > 280) { doc.addPage(); y = 20; }
-                doc.text(line, 20, y);
-                y += 6;
-            });
-
-            if(images.length > 0) {
-                doc.addPage();
-                doc.setFont("helvetica", "bold");
-                doc.text("LAMPIRAN BERGAMBAR", 105, 15, null, null, "center");
-                const imgCount = images.length;
-                let cols = imgCount > 2 ? 2 : 1;
-                const rows = Math.ceil(imgCount / cols);
-                const areaW = 190, areaH = 260, gap = 5;
-                const cellW = (areaW - (gap * (cols - 1))) / cols;
-                const cellH = (areaH - (gap * (rows - 1))) / rows;
-                
-                images.forEach((img, i) => {
-                    const props = doc.getImageProperties(img.src);
-                    const ratio = props.width / props.height;
-                    const col = i % cols;
-                    const row = Math.floor(i / cols);
-                    const xBox = 10 + (col * (cellW + gap));
-                    const yBox = 25 + (row * (cellH + gap));
-                    let drawW = cellW, drawH = drawW / ratio;
-                    if (drawH > cellH) { drawH = cellH; drawW = drawH * ratio; }
-                    const offsetX = xBox + (cellW - drawW) / 2;
-                    const offsetY = yBox + (cellH - drawH) / 2;
-                    doc.addImage(img.src, 'JPEG', offsetX, offsetY, drawW, drawH);
-                });
-            }
-            
-            const fName = (document.getElementById('subject').value || "Laporan").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
-            const fTime = (document.getElementById('reportTime').value || "").replace(":", "");
-            const fileName = `${fName}_${fTime}.pdf`;
-
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], fileName, { type: "application/pdf" });
-
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: title,
-                        text: 'Berikut adalah laporan aktiviti sekolah yang telah dijana.'
-                    });
-                } catch (error) {
-                    console.log('Error sharing:', error);
-                }
-            } else {
-                alert("Fungsi kongsi tidak disokong pada peranti ini. Sila guna butang Muat Turun.");
-            }
+            doc.save(`Laporan_${Date.now()}.pdf`);
         }
     </script>
 </body>
