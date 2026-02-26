@@ -16,7 +16,7 @@
         textarea { font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.5; }
     </style>
 </head>
-<body class="p-3 md:p-8" onload="fetchHistory()">
+<body class="p-3 md:p-8" onload="initPage()">
 
     <div class="max-w-5xl mx-auto space-y-6">
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
@@ -158,14 +158,38 @@
 
     <script>
         const CONFIG = {
-            API_KEY: "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", 
+            API_KEY: "", // Akan diambil dari Google Sheet
             // URL GAS Anda
-            GAS_URL: "https://script.google.com/macros/s/AKfycbw0V8xQ9YeP559gvjjkngTdDW7GULGby9PG4jk5_8uTJgfii2GPYW2gMl2mb1BAIJ90/exec",
+            GAS_URL: "https://script.google.com/macros/s/AKfycbyT-CO8a2yQhZXhWahS34f3HSkei1uS2NVHjMtDBK1ZMY7ZZCw7GCBOvlA-Vwd5gMqq/exec",
             MODEL: "llama-3.3-70b-versatile" 
         };
 
         let images = [];
         let historyData = [];
+
+        // FUNGSI BARU: INIT & FETCH API KEY
+        async function initPage() {
+            await fetchApiKey();
+            fetchHistory();
+        }
+
+        async function fetchApiKey() {
+            try {
+                const resp = await fetch(CONFIG.GAS_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ action: "GET_KEY", passcode: "101010" }) 
+                });
+                const data = await resp.json();
+                if (data.apiKey) {
+                    CONFIG.API_KEY = data.apiKey;
+                    console.log("API Key loaded from Sheet");
+                } else {
+                    console.warn("API Key not found in Sheet 'api_key'");
+                }
+            } catch (e) {
+                console.error("Error fetching API Key:", e);
+            }
+        }
 
         function handleImages(input) {
             const files = Array.from(input.files);
@@ -199,6 +223,9 @@
         }
 
         async function generateAndSave() {
+            // Pastikan API Key wujud
+            if(!CONFIG.API_KEY) return alert("API Key belum dimuat turun. Sila refresh atau semak Google Sheet.");
+            
             // Ambil data tanpa default (kosong jika tidak diisi)
             const type = document.getElementById('reportType').value;
             const subject = document.getElementById('subject').value;
@@ -591,6 +618,3 @@
     </script>
 </body>
 </html>
-
-
-
